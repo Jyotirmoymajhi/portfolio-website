@@ -381,6 +381,14 @@ function Overlays() {
   );
 }
 function ReferenceHero() {
+  const animatedWords = [
+    'impact.',
+    'meaning.',
+    'experiences.',
+    'possibilities.',
+    'reality.',
+  ];
+  const [wordIndex, setWordIndex] = useState(0);
   const artwork = useRef<HTMLDivElement>(null);
   const reveal = useRef<HTMLDivElement>(null);
   const artCursor = useRef<HTMLDivElement>(null);
@@ -447,6 +455,14 @@ function ReferenceHero() {
     };
     fadeFrame.current = requestAnimationFrame(fade);
   };
+
+  useEffect(() => {
+    const wordTimer = window.setInterval(
+      () => setWordIndex((index) => (index + 1) % animatedWords.length),
+      2600,
+    );
+    return () => window.clearInterval(wordTimer);
+  }, []);
 
   useEffect(() => {
     const savedVolume = Number(sessionStorage.getItem('jyoti-music-volume'));
@@ -529,35 +545,27 @@ function ReferenceHero() {
                 ?.scrollIntoView({ behavior: 'smooth' })
             }
           >
-            Product Designer
+            Multidisciplinary Designer
           </button>
           <h1>
-            I design
+            I transform
             <br />
-            things that
+            ideas into
             <br />
-            <em>connect.</em>
+            <em className="animated-impact" aria-live="polite">
+              <span key={animatedWords[wordIndex]}>
+                {animatedWords[wordIndex]}
+              </span>
+            </em>
           </h1>
           <p>
-            Senior Product Designer with 4+ years of experience creating
-            AI-powered SaaS and enterprise products. I transform complex
-            workflows into intuitive, scalable digital experiences.
+            I’m Jyotirmoy Majhi, a multidisciplinary designer transforming ideas
+            into meaningful products, visuals and memorable experiences.
           </p>
-          <a
-            className="primary-button resume-button"
-            href="#contact"
-            onPointerMove={(event) => {
-              const bounds = event.currentTarget.getBoundingClientRect();
-              event.currentTarget.style.setProperty(
-                '--cursor-x',
-                `${event.clientX - bounds.left}px`,
-              );
-            }}
-          >
+          <a className="primary-button resume-button" href="#contact">
             <span className="resume-label">
               Download Resume <ArrowUpRight size={17} />
             </span>
-            <span className="button-cursor" aria-hidden="true" />
           </a>
         </div>
       </div>
