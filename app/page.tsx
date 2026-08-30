@@ -487,7 +487,15 @@ function ReferenceNavbar() {
   return (
     <header className="navbar reference-navbar">
       <a href="#home" className="portrait-mark" aria-label="Home">
-        <span />
+        <video
+          src="/jyotirmoy-vector-loop.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+        />
       </a>
       <nav>
         {[
