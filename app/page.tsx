@@ -388,6 +388,7 @@ function ReferenceHero() {
   const target = useRef({ x: 55, y: 46 });
   const current = useRef({ x: 55, y: 46 });
   const started = useRef(false);
+  const insideArtwork = useRef(false);
   const manuallyPaused = useRef(false);
   const fadeFrame = useRef(0);
   const preferredVolume = useRef(0.14);
@@ -405,7 +406,12 @@ function ReferenceHero() {
 
   const fadeInMusic = async (manual = false) => {
     const player = audio.current;
-    if (!player || (!manual && (started.current || manuallyPaused.current)))
+    if (
+      !player ||
+      !insideArtwork.current ||
+      (!manual && manuallyPaused.current) ||
+      !player.paused
+    )
       return;
     if (player.ended) player.currentTime = 0;
     started.current = true;
@@ -428,6 +434,26 @@ function ReferenceHero() {
     }
   };
 
+  const fadeOutMusic = () => {
+    const player = audio.current;
+    if (!player || player.paused) return;
+    cancelAnimationFrame(fadeFrame.current);
+    const began = performance.now();
+    const startingVolume = player.volume;
+    const fade = (time: number) => {
+      const progress = Math.min((time - began) / 650, 1);
+      player.volume = startingVolume * (1 - progress);
+      if (progress < 1 && !insideArtwork.current) {
+        fadeFrame.current = requestAnimationFrame(fade);
+      } else if (!insideArtwork.current) {
+        player.pause();
+        player.volume = preferredVolume.current;
+        publishMusicState();
+      }
+    };
+    fadeFrame.current = requestAnimationFrame(fade);
+  };
+
   useEffect(() => {
     const savedVolume = Number(sessionStorage.getItem('jyoti-music-volume'));
     if (savedVolume >= 0.05 && savedVolume <= 0.5)
@@ -445,7 +471,9 @@ function ReferenceHero() {
         sessionStorage.setItem('jyoti-music-paused', 'true');
         publishMusicState();
       } else {
-        fadeInMusic(true);
+        manuallyPaused.current = false;
+        sessionStorage.setItem('jyoti-music-paused', 'false');
+        if (insideArtwork.current) fadeInMusic(true);
       }
     };
     const changeVolume = (event: Event) => {
@@ -543,10 +571,16 @@ function ReferenceHero() {
         ref={artwork}
         className="hero-images"
         onPointerMove={moveArtwork}
-        onPointerEnter={() => artwork.current?.classList.add('cursor-visible')}
-        onPointerLeave={() =>
-          artwork.current?.classList.remove('cursor-visible')
-        }
+        onPointerEnter={() => {
+          insideArtwork.current = true;
+          artwork.current?.classList.add('cursor-visible');
+          fadeInMusic();
+        }}
+        onPointerLeave={() => {
+          insideArtwork.current = false;
+          artwork.current?.classList.remove('cursor-visible');
+          fadeOutMusic();
+        }}
       >
         <div className="hero-image hero-mono" />
         <div ref={reveal} className="hero-image hero-color" />
