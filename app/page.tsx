@@ -381,41 +381,122 @@ function Overlays() {
   );
 }
 function ReferenceHero() {
-  const hero = useRef<HTMLElement>(null),
-    reveal = useRef<HTMLDivElement>(null),
-    image = useRef<HTMLDivElement>(null),
-    target = useRef({ x: 68, y: 45 }),
-    current = useRef({ x: 68, y: 45 });
+  const artwork = useRef<HTMLDivElement>(null);
+  const reveal = useRef<HTMLDivElement>(null);
+  const artCursor = useRef<HTMLDivElement>(null);
+  const audio = useRef<HTMLAudioElement>(null);
+  const target = useRef({ x: 55, y: 46 });
+  const current = useRef({ x: 55, y: 46 });
+  const started = useRef(false);
+  const manuallyPaused = useRef(false);
+  const fadeFrame = useRef(0);
+  const preferredVolume = useRef(0.14);
+
+  const publishMusicState = () => {
+    window.dispatchEvent(
+      new CustomEvent('music-state', {
+        detail: {
+          playing: Boolean(audio.current && !audio.current.paused),
+          volume: preferredVolume.current,
+        },
+      }),
+    );
+  };
+
+  const fadeInMusic = async (manual = false) => {
+    const player = audio.current;
+    if (!player || (!manual && (started.current || manuallyPaused.current)))
+      return;
+    if (player.ended) player.currentTime = 0;
+    started.current = true;
+    manuallyPaused.current = false;
+    sessionStorage.setItem('jyoti-music-paused', 'false');
+    cancelAnimationFrame(fadeFrame.current);
+    player.volume = 0;
+    try {
+      await player.play();
+      const began = performance.now();
+      const fade = (time: number) => {
+        const progress = Math.min((time - began) / 1800, 1);
+        player.volume = preferredVolume.current * progress;
+        if (progress < 1) fadeFrame.current = requestAnimationFrame(fade);
+      };
+      fadeFrame.current = requestAnimationFrame(fade);
+      publishMusicState();
+    } catch {
+      started.current = false;
+    }
+  };
+
+  useEffect(() => {
+    const savedVolume = Number(sessionStorage.getItem('jyoti-music-volume'));
+    if (savedVolume >= 0.05 && savedVolume <= 0.5)
+      preferredVolume.current = savedVolume;
+    manuallyPaused.current =
+      sessionStorage.getItem('jyoti-music-paused') === 'true';
+
+    const toggle = () => {
+      const player = audio.current;
+      if (!player) return;
+      if (!player.paused) {
+        cancelAnimationFrame(fadeFrame.current);
+        player.pause();
+        manuallyPaused.current = true;
+        sessionStorage.setItem('jyoti-music-paused', 'true');
+        publishMusicState();
+      } else {
+        fadeInMusic(true);
+      }
+    };
+    const changeVolume = (event: Event) => {
+      const value = (event as CustomEvent<{ volume: number }>).detail.volume;
+      preferredVolume.current = Math.max(0.05, Math.min(0.5, value));
+      sessionStorage.setItem(
+        'jyoti-music-volume',
+        String(preferredVolume.current),
+      );
+      if (audio.current && !audio.current.paused)
+        audio.current.volume = preferredVolume.current;
+      publishMusicState();
+    };
+    window.addEventListener('toggle-music', toggle);
+    window.addEventListener('set-music-volume', changeVolume);
+    return () => {
+      cancelAnimationFrame(fadeFrame.current);
+      window.removeEventListener('toggle-music', toggle);
+      window.removeEventListener('set-music-volume', changeVolume);
+    };
+  }, []);
+
   useEffect(() => {
     let raf = 0;
     const tick = () => {
-      current.current.x += (target.current.x - current.current.x) * 0.1;
-      current.current.y += (target.current.y - current.current.y) * 0.1;
-      const { x, y } = current.current;
-      reveal.current?.style.setProperty('--mx', `${x}%`);
-      reveal.current?.style.setProperty('--my', `${y}%`);
-      if (image.current)
-        image.current.style.transform = `translate3d(${(x - 50) * -0.08}px,${(y - 50) * -0.05}px,0) scale(1.012)`;
+      current.current.x += (target.current.x - current.current.x) * 0.095;
+      current.current.y += (target.current.y - current.current.y) * 0.095;
+      reveal.current?.style.setProperty('--mx', `${current.current.x}%`);
+      reveal.current?.style.setProperty('--my', `${current.current.y}%`);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, []);
-  const move = (e: React.PointerEvent) => {
-    const r = hero.current?.getBoundingClientRect();
-    if (r)
-      target.current = {
-        x: ((e.clientX - r.left) / r.width) * 100,
-        y: ((e.clientY - r.top) / r.height) * 100,
-      };
+
+  const moveArtwork = (event: React.PointerEvent<HTMLDivElement>) => {
+    const bounds = artwork.current?.getBoundingClientRect();
+    if (!bounds) return;
+    const x = event.clientX - bounds.left;
+    const y = event.clientY - bounds.top;
+    target.current = {
+      x: (x / bounds.width) * 100,
+      y: (y / bounds.height) * 100,
+    };
+    if (artCursor.current)
+      artCursor.current.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%)`;
+    artwork.current?.classList.add('is-exploring');
+    fadeInMusic();
   };
   return (
-    <section
-      id="home"
-      ref={hero}
-      onPointerMove={move}
-      className="hero reference-hero"
-    >
+    <section id="home" className="hero reference-hero">
       <div className="hero-left">
         <div className="hero-copy">
           <button
@@ -458,10 +539,27 @@ function ReferenceHero() {
           </a>
         </div>
       </div>
-      <div ref={image} className="hero-images" aria-hidden="true">
+      <div
+        ref={artwork}
+        className="hero-images"
+        onPointerMove={moveArtwork}
+        onPointerEnter={() => artwork.current?.classList.add('cursor-visible')}
+        onPointerLeave={() =>
+          artwork.current?.classList.remove('cursor-visible')
+        }
+      >
         <div className="hero-image hero-mono" />
         <div ref={reveal} className="hero-image hero-color" />
+        <div ref={artCursor} className="artwork-cursor" aria-hidden="true">
+          <span />
+        </div>
       </div>
+      <audio
+        ref={audio}
+        src="/jyoti-bengali-instrumental.mpeg"
+        preload="metadata"
+        onEnded={publishMusicState}
+      />
       <button
         className="kolkata-mark"
         onClick={() => window.dispatchEvent(new Event('open-kolkata'))}
@@ -484,6 +582,13 @@ function ReferenceHero() {
 }
 function ReferenceNavbar() {
   const [open, setOpen] = useState(false);
+  const [music, setMusic] = useState({ playing: false, volume: 0.14 });
+  useEffect(() => {
+    const update = (event: Event) =>
+      setMusic((event as CustomEvent<typeof music>).detail);
+    window.addEventListener('music-state', update);
+    return () => window.removeEventListener('music-state', update);
+  }, []);
   return (
     <header className="navbar reference-navbar">
       <a href="#home" className="portrait-mark" aria-label="Home">
@@ -510,9 +615,41 @@ function ReferenceNavbar() {
         ))}
       </nav>
       <div className="nav-spacer" />
-      <button className="music-button" aria-label="Toggle music">
-        ♪ <b>···</b>
-      </button>
+      <div className={`music-control ${music.playing ? 'is-playing' : ''}`}>
+        <button
+          className="music-button"
+          aria-label={
+            music.playing ? 'Pause ambient music' : 'Play ambient music'
+          }
+          aria-pressed={music.playing}
+          onClick={() => window.dispatchEvent(new Event('toggle-music'))}
+        >
+          <span className="music-note">♪</span>
+          <span className="equalizer" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          <small>MUSIC</small>
+        </button>
+        <label className="volume-control">
+          <span>Volume</span>
+          <input
+            type="range"
+            min="5"
+            max="50"
+            value={Math.round(music.volume * 100)}
+            onChange={(event) => {
+              const volume = Number(event.target.value) / 100;
+              setMusic((state) => ({ ...state, volume }));
+              window.dispatchEvent(
+                new CustomEvent('set-music-volume', { detail: { volume } }),
+              );
+            }}
+            aria-label="Ambient music volume"
+          />
+        </label>
+      </div>
       <a href="#contact" className="availability">
         <i /> Available for Work
       </a>
