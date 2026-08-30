@@ -37,3 +37,12 @@
 
 .animated-impact{display:block;height:.9em;overflow:hidden;white-space:nowrap}.animated-impact>span{display:block;width:max-content;animation:impact-word-cycle 2.6s cubic-bezier(.22,.75,.22,1) both}.reference-hero .hero-copy>p strong{font-weight:750;color:var(--ink)}@keyframes impact-word-cycle{0%{opacity:0;transform:translateY(58%);clip-path:inset(0 100% 0 0)}14%{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)}72%{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)}100%{opacity:0;transform:translateY(0);clip-path:inset(0 100% 0 0)}}.button-cursor{display:none!important}
 @media(prefers-reduced-motion:reduce){.animated-impact>span{animation:none}}
+
+/* Hero typography and spacing matched to the supplied references */
+.reference-hero .eyebrow{font-size:18px;letter-spacing:.11em;white-space:nowrap}
+.reference-hero h1{font-family:var(--font-geist-sans),Arial,Helvetica,sans-serif;font-size:clamp(56px,5vw,74px);font-weight:750;line-height:.9;letter-spacing:-.068em;margin:32px 0 40px}
+.reference-hero .hero-copy>p{font-size:19px;line-height:1.62;max-width:430px}
+.reference-hero .resume-button{width:273px;height:75px;margin-top:38px;padding:0 28px}
+@media(max-width:1100px){.reference-hero h1{font-size:58px}.reference-hero .eyebrow{font-size:16px}.reference-hero .hero-copy>p{font-size:18px}}
+@media(max-width:900px){.reference-hero h1{font-size:clamp(54px,11vw,72px)}}
+@media(max-width:580px){.reference-hero .eyebrow{font-size:12px;letter-spacing:.075em}.reference-hero h1{font-size:clamp(46px,12vw,54px);margin:28px 0 36px}.reference-hero .resume-button{width:240px;height:64px;margin-top:32px}}
