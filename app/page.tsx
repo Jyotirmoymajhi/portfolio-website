@@ -382,11 +382,11 @@ function Overlays() {
 }
 function ReferenceHero() {
   const animatedWords = [
-    'impact.',
-    'meaning.',
-    'experiences.',
-    'possibilities.',
-    'reality.',
+    { text: 'impact.', color: '#f04a13' },
+    { text: 'meaning.', color: '#2f8f62' },
+    { text: 'experiences.', color: '#3977bd' },
+    { text: 'possibilities.', color: '#7a59a8' },
+    { text: 'reality.', color: '#d14f3f' },
   ];
   const [wordIndex, setWordIndex] = useState(0);
   const artwork = useRef<HTMLDivElement>(null);
@@ -545,7 +545,7 @@ function ReferenceHero() {
                 ?.scrollIntoView({ behavior: 'smooth' })
             }
           >
-            Multidisciplinary Designer
+            Product Designer · Visual Designer
           </button>
           <h1>
             I transform
@@ -553,14 +553,18 @@ function ReferenceHero() {
             ideas into
             <br />
             <em className="animated-impact" aria-live="polite">
-              <span key={animatedWords[wordIndex]}>
-                {animatedWords[wordIndex]}
+              <span
+                key={animatedWords[wordIndex].text}
+                style={{ color: animatedWords[wordIndex].color }}
+              >
+                {animatedWords[wordIndex].text}
               </span>
             </em>
           </h1>
           <p>
-            I’m Jyotirmoy Majhi, a multidisciplinary designer transforming ideas
-            into meaningful products, visuals and memorable experiences.
+            <strong>I’m Jyotirmoy Majhi,</strong> a multidisciplinary designer
+            transforming ideas into meaningful products, visuals and memorable
+            experiences.
           </p>
           <a className="primary-button resume-button" href="#contact">
             <span className="resume-label">
