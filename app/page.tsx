@@ -406,13 +406,7 @@ function ReferenceHero() {
 
   const fadeInMusic = async (manual = false) => {
     const player = audio.current;
-    if (
-      !player ||
-      !insideArtwork.current ||
-      (!manual && manuallyPaused.current) ||
-      !player.paused
-    )
-      return;
+    if (!player || !insideArtwork.current || !player.paused) return;
     if (player.ended) player.currentTime = 0;
     started.current = true;
     manuallyPaused.current = false;
