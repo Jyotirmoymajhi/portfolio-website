@@ -5,6 +5,8 @@ import {
   BriefcaseBusiness,
   MapPin,
   MoveRight,
+  PenTool,
+  Search,
   Sparkles,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -862,6 +864,12 @@ function WhatIBring() {
           </span>
           <span className="shape-node node-a" />
           <span className="shape-node node-b" />
+        </div>
+        <div className="bring-mini-icon bring-mini-search">
+          <Search />
+        </div>
+        <div className="bring-mini-icon bring-mini-pen">
+          <PenTool />
         </div>
       </div>
     </section>
