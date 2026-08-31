@@ -461,9 +461,33 @@ function ReferenceHero() {
     fadeFrame.current = requestAnimationFrame(fade);
   };
 
+  const playWordChangeSound = async () => {
+    const player = audio.current;
+    if (!player || !insideArtwork.current || manuallyPaused.current) return;
+    cancelAnimationFrame(fadeFrame.current);
+    player.pause();
+    player.currentTime = 0;
+    player.volume = preferredVolume.current;
+    try {
+      await player.play();
+      publishMusicState();
+    } catch {
+      publishMusicState();
+    }
+  };
+
+  const stopWordChangeSound = () => {
+    const player = audio.current;
+    if (!player) return;
+    cancelAnimationFrame(fadeFrame.current);
+    player.pause();
+    player.currentTime = 0;
+    publishMusicState();
+  };
+
   const startWordMusicCycle = () => {
     if (cycleComplete.current) return;
-    fadeInMusic();
+    playWordChangeSound();
     if (cycleStarted.current) return;
     cycleStarted.current = true;
     setWordIndex(0);
@@ -472,11 +496,12 @@ function ReferenceHero() {
       nextWord += 1;
       if (nextWord < animatedWords.length) {
         setWordIndex(nextWord);
+        playWordChangeSound();
         return;
       }
       window.clearInterval(wordTimer.current);
       cycleComplete.current = true;
-      fadeOutMusic(true);
+      stopWordChangeSound();
     }, 2600);
   };
 
@@ -487,7 +512,7 @@ function ReferenceHero() {
       ([entry]) => {
         if (!entry.isIntersecting) {
           insideArtwork.current = false;
-          fadeOutMusic(true);
+          stopWordChangeSound();
         }
       },
       { threshold: 0.08 },
@@ -630,7 +655,7 @@ function ReferenceHero() {
       </div>
       <audio
         ref={audio}
-        src="/jyoti-bengali-instrumental.mpeg"
+        src="/hero-word-change.mp3"
         preload="metadata"
         onEnded={publishMusicState}
       />
