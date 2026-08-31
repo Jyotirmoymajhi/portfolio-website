@@ -502,7 +502,7 @@ function ReferenceHero() {
       window.clearInterval(wordTimer.current);
       cycleComplete.current = true;
       stopWordChangeSound();
-    }, 2600);
+    }, 1600);
   };
 
   useEffect(() => {
