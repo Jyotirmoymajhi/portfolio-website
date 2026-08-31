@@ -35,7 +35,7 @@
 @media(max-width:900px){.reference-navbar>.music-control{display:none}.reference-hero .hero-images{cursor:auto}.artwork-cursor{display:none}}
 @media(prefers-reduced-motion:reduce){.cursor-visible .artwork-cursor,.music-control.is-playing .equalizer i{animation:none}.reference-hero .hero-color{transition:none}}
 
-.animated-impact{display:block;height:.9em;overflow:hidden;white-space:nowrap}.animated-impact>span{display:block;width:max-content;animation:impact-word-cycle 1.6s cubic-bezier(.22,.75,.22,1) both}.reference-hero .hero-copy>p strong{font-weight:750;color:var(--ink)}@keyframes impact-word-cycle{0%{opacity:0;transform:translateY(58%);clip-path:inset(0 100% 0 0)}18%{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)}72%{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)}100%{opacity:0;transform:translateY(0);clip-path:inset(0 100% 0 0)}}.button-cursor{display:none!important}
+.animated-impact{display:block;height:.9em;overflow:hidden;white-space:nowrap}.animated-impact>span{display:block;width:max-content;animation:impact-word-cycle 2.1s cubic-bezier(.22,.75,.22,1) both}.reference-hero .hero-copy>p strong{font-weight:750;color:var(--ink)}@keyframes impact-word-cycle{0%{opacity:0;transform:translateY(58%);clip-path:inset(0 100% 0 0)}16%{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)}76%{opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0)}100%{opacity:0;transform:translateY(0);clip-path:inset(0 100% 0 0)}}.button-cursor{display:none!important}
 @media(prefers-reduced-motion:reduce){.animated-impact>span{animation:none}}
 
 /* Hero typography and spacing matched to the supplied references */
