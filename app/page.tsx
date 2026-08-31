@@ -3,9 +3,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BriefcaseBusiness,
-  Grid2X2,
   MapPin,
-  MousePointer2,
   MoveRight,
   Sparkles,
 } from 'lucide-react';
@@ -845,14 +843,23 @@ function WhatIBring() {
       </div>
       <div className="bring-shapes" aria-hidden="true">
         <div className="bring-shape bring-shape-pointer">
-          <MousePointer2 />
+          <span className="dotted-cursor" />
+          <span className="cursor-stem stem-one" />
+          <span className="cursor-stem stem-two" />
+          <span className="bezier-curve" />
           <span className="shape-node node-a" />
           <span className="shape-node node-b" />
           <span className="shape-node node-c" />
         </div>
         <div className="bring-shape bring-shape-grid">
-          <MousePointer2 />
-          <Grid2X2 />
+          <span className="dotted-cursor" />
+          <span className="cursor-center-node" />
+          <span className="shape-grid-icon">
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
           <span className="shape-node node-a" />
           <span className="shape-node node-b" />
         </div>
