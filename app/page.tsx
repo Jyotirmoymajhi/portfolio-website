@@ -808,52 +808,20 @@ function ReferenceNavbar() {
 
 function WhatIBring() {
   const section = useRef<HTMLElement>(null);
-  const audio = useRef<HTMLAudioElement>(null);
-  const active = useRef(false);
-  const unlocked = useRef(false);
   const [visible, setVisible] = useState(false);
-
-  const playSectionMusic = async () => {
-    if (!active.current || !unlocked.current || !audio.current) return;
-    audio.current.volume = 0.12;
-    try {
-      await audio.current.play();
-    } catch {
-      // Browsers may wait for the next user interaction before allowing sound.
-    }
-  };
 
   useEffect(() => {
     const node = section.current;
     if (!node) return;
-    const unlock = () => {
-      unlocked.current = true;
-      playSectionMusic();
-    };
     const observer = new IntersectionObserver(
       ([entry]) => {
-        active.current = entry.isIntersecting;
         setVisible(entry.isIntersecting);
-        if (entry.isIntersecting) playSectionMusic();
-        else audio.current?.pause();
       },
       { threshold: 0.38 },
     );
     observer.observe(node);
-    window.addEventListener('pointermove', unlock, { once: true });
-    window.addEventListener('pointerdown', unlock, { once: true });
-    window.addEventListener('wheel', unlock, { once: true });
-    window.addEventListener('touchstart', unlock, {
-      once: true,
-      passive: true,
-    });
     return () => {
       observer.disconnect();
-      audio.current?.pause();
-      window.removeEventListener('pointermove', unlock);
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('wheel', unlock);
-      window.removeEventListener('touchstart', unlock);
     };
   }, []);
 
@@ -889,11 +857,6 @@ function WhatIBring() {
           <span className="shape-node node-b" />
         </div>
       </div>
-      <audio
-        ref={audio}
-        src="/jyoti-bengali-instrumental.mpeg"
-        preload="metadata"
-      />
     </section>
   );
 }
