@@ -3,7 +3,9 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BriefcaseBusiness,
+  Grid2X2,
   MapPin,
+  MousePointer2,
   MoveRight,
   Sparkles,
 } from 'lucide-react';
@@ -803,12 +805,106 @@ function ReferenceNavbar() {
     </header>
   );
 }
+
+function WhatIBring() {
+  const section = useRef<HTMLElement>(null);
+  const audio = useRef<HTMLAudioElement>(null);
+  const active = useRef(false);
+  const unlocked = useRef(false);
+  const [visible, setVisible] = useState(false);
+
+  const playSectionMusic = async () => {
+    if (!active.current || !unlocked.current || !audio.current) return;
+    audio.current.volume = 0.12;
+    try {
+      await audio.current.play();
+    } catch {
+      // Browsers may wait for the next user interaction before allowing sound.
+    }
+  };
+
+  useEffect(() => {
+    const node = section.current;
+    if (!node) return;
+    const unlock = () => {
+      unlocked.current = true;
+      playSectionMusic();
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        active.current = entry.isIntersecting;
+        setVisible(entry.isIntersecting);
+        if (entry.isIntersecting) playSectionMusic();
+        else audio.current?.pause();
+      },
+      { threshold: 0.38 },
+    );
+    observer.observe(node);
+    window.addEventListener('pointermove', unlock, { once: true });
+    window.addEventListener('pointerdown', unlock, { once: true });
+    window.addEventListener('wheel', unlock, { once: true });
+    window.addEventListener('touchstart', unlock, {
+      once: true,
+      passive: true,
+    });
+    return () => {
+      observer.disconnect();
+      audio.current?.pause();
+      window.removeEventListener('pointermove', unlock);
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('wheel', unlock);
+      window.removeEventListener('touchstart', unlock);
+    };
+  }, []);
+
+  return (
+    <section
+      ref={section}
+      className={`what-i-bring ${visible ? 'is-visible' : ''}`}
+      aria-labelledby="what-i-bring-title"
+    >
+      <div className="bring-copy">
+        <p className="bring-kicker">WHAT I BRING</p>
+        <h2 id="what-i-bring-title">
+          <span>Different skills</span>
+          <span>One purpose</span>
+          <span>making ideas work.</span>
+        </h2>
+        <p className="bring-description">
+          I combine research, product thinking and visual craft to turn complex
+          ideas into clear, useful and memorable experiences.
+        </p>
+      </div>
+      <div className="bring-shapes" aria-hidden="true">
+        <div className="bring-shape bring-shape-pointer">
+          <MousePointer2 />
+          <span className="shape-node node-a" />
+          <span className="shape-node node-b" />
+          <span className="shape-node node-c" />
+        </div>
+        <div className="bring-shape bring-shape-grid">
+          <MousePointer2 />
+          <Grid2X2 />
+          <span className="shape-node node-a" />
+          <span className="shape-node node-b" />
+        </div>
+      </div>
+      <audio
+        ref={audio}
+        src="/jyoti-bengali-instrumental.mpeg"
+        preload="metadata"
+      />
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <>
       <ReferenceNavbar />
       <main>
         <ReferenceHero />
+        <WhatIBring />
         <Projects />
         <About />
         <Experience />
