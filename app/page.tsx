@@ -396,13 +396,12 @@ function ReferenceHero() {
   const audio = useRef<HTMLAudioElement>(null);
   const target = useRef({ x: 55, y: 46 });
   const current = useRef({ x: 55, y: 46 });
-  const started = useRef(false);
   const insideArtwork = useRef(false);
+  const heroVisible = useRef(true);
+  const audioUnlocked = useRef(false);
   const manuallyPaused = useRef(false);
   const fadeFrame = useRef(0);
   const wordTimer = useRef(0);
-  const cycleStarted = useRef(false);
-  const cycleComplete = useRef(false);
   const preferredVolume = useRef(0.14);
 
   const publishMusicState = () => {
@@ -416,54 +415,15 @@ function ReferenceHero() {
     );
   };
 
-  const fadeInMusic = async (manual = false) => {
-    const player = audio.current;
-    if (!player || !insideArtwork.current || !player.paused) return;
-    if (cycleComplete.current && !manual) return;
-    if (player.ended) player.currentTime = 0;
-    started.current = true;
-    manuallyPaused.current = false;
-    sessionStorage.setItem('jyoti-music-paused', 'false');
-    cancelAnimationFrame(fadeFrame.current);
-    player.volume = 0;
-    try {
-      await player.play();
-      const began = performance.now();
-      const fade = (time: number) => {
-        const progress = Math.min((time - began) / 1800, 1);
-        player.volume = preferredVolume.current * progress;
-        if (progress < 1) fadeFrame.current = requestAnimationFrame(fade);
-      };
-      fadeFrame.current = requestAnimationFrame(fade);
-      publishMusicState();
-    } catch {
-      started.current = false;
-    }
-  };
-
-  const fadeOutMusic = (force = false) => {
-    const player = audio.current;
-    if (!player || player.paused) return;
-    cancelAnimationFrame(fadeFrame.current);
-    const began = performance.now();
-    const startingVolume = player.volume;
-    const fade = (time: number) => {
-      const progress = Math.min((time - began) / 650, 1);
-      player.volume = startingVolume * (1 - progress);
-      if (progress < 1 && (force || !insideArtwork.current)) {
-        fadeFrame.current = requestAnimationFrame(fade);
-      } else if (force || !insideArtwork.current) {
-        player.pause();
-        player.volume = preferredVolume.current;
-        publishMusicState();
-      }
-    };
-    fadeFrame.current = requestAnimationFrame(fade);
-  };
-
   const playWordChangeSound = async () => {
     const player = audio.current;
-    if (!player || !insideArtwork.current || manuallyPaused.current) return;
+    if (
+      !player ||
+      !heroVisible.current ||
+      !audioUnlocked.current ||
+      manuallyPaused.current
+    )
+      return;
     cancelAnimationFrame(fadeFrame.current);
     player.pause();
     player.currentTime = 0;
@@ -485,39 +445,23 @@ function ReferenceHero() {
     publishMusicState();
   };
 
-  const startWordMusicCycle = () => {
-    if (cycleComplete.current) return;
-    playWordChangeSound();
-    if (cycleStarted.current) return;
-    cycleStarted.current = true;
-    setWordIndex(0);
-    let nextWord = 0;
-    wordTimer.current = window.setInterval(() => {
-      nextWord += 1;
-      if (nextWord < animatedWords.length) {
-        setWordIndex(nextWord);
-        playWordChangeSound();
-        return;
-      }
-      window.clearInterval(wordTimer.current);
-      cycleComplete.current = true;
-      stopWordChangeSound();
-    }, 1600);
-  };
-
   useEffect(() => {
     const node = hero.current;
     if (!node) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
+        heroVisible.current = entry.isIntersecting;
         if (!entry.isIntersecting) {
-          insideArtwork.current = false;
           stopWordChangeSound();
         }
       },
       { threshold: 0.08 },
     );
     observer.observe(node);
+    wordTimer.current = window.setInterval(() => {
+      setWordIndex((index) => (index + 1) % animatedWords.length);
+      playWordChangeSound();
+    }, 1600);
     return () => {
       observer.disconnect();
       window.clearInterval(wordTimer.current);
@@ -528,8 +472,17 @@ function ReferenceHero() {
     const savedVolume = Number(sessionStorage.getItem('jyoti-music-volume'));
     if (savedVolume >= 0.05 && savedVolume <= 0.5)
       preferredVolume.current = savedVolume;
-    manuallyPaused.current =
-      sessionStorage.getItem('jyoti-music-paused') === 'true';
+    manuallyPaused.current = false;
+    sessionStorage.setItem('jyoti-music-paused', 'false');
+
+    const unlockAudio = () => {
+      audioUnlocked.current = true;
+      playWordChangeSound();
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('pointermove', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
 
     const toggle = () => {
       const player = audio.current;
@@ -542,8 +495,9 @@ function ReferenceHero() {
         publishMusicState();
       } else {
         manuallyPaused.current = false;
+        audioUnlocked.current = true;
         sessionStorage.setItem('jyoti-music-paused', 'false');
-        if (insideArtwork.current) fadeInMusic(true);
+        playWordChangeSound();
       }
     };
     const changeVolume = (event: Event) => {
@@ -559,10 +513,18 @@ function ReferenceHero() {
     };
     window.addEventListener('toggle-music', toggle);
     window.addEventListener('set-music-volume', changeVolume);
+    window.addEventListener('pointerdown', unlockAudio);
+    window.addEventListener('pointermove', unlockAudio);
+    window.addEventListener('keydown', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio, { passive: true });
     return () => {
       cancelAnimationFrame(fadeFrame.current);
       window.removeEventListener('toggle-music', toggle);
       window.removeEventListener('set-music-volume', changeVolume);
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('pointermove', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
     };
   }, []);
 
@@ -639,12 +601,10 @@ function ReferenceHero() {
         onPointerEnter={() => {
           insideArtwork.current = true;
           artwork.current?.classList.add('cursor-visible');
-          startWordMusicCycle();
         }}
         onPointerLeave={() => {
           insideArtwork.current = false;
           artwork.current?.classList.remove('cursor-visible');
-          fadeOutMusic();
         }}
       >
         <div className="hero-image hero-mono" />
