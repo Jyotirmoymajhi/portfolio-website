@@ -2,13 +2,18 @@
 import {
   ArrowDownRight,
   ArrowUpRight,
+  BookOpen,
   BriefcaseBusiness,
+  Code2,
+  GitBranch,
   Image as ImageIcon,
   LayoutGrid,
   MapPin,
+  MousePointer2,
   MoveRight,
   Palette,
   PenTool,
+  Share2,
   Sparkles,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -873,6 +878,74 @@ function WhatIBring() {
   );
 }
 
+function ServicesGrid() {
+  const section = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+  const services = [
+    [
+      MousePointer2,
+      'UX/UI & Product Design',
+      'Designing intuitive digital products from early concepts and user flows to polished, responsive interfaces.',
+    ],
+    [
+      Share2,
+      'User Research & Strategy',
+      'Understanding users through interviews, observation, journey mapping and insight-driven problem framing.',
+    ],
+    [
+      GitBranch,
+      'Prototyping & Interaction',
+      'Building wireframes and interactive prototypes to communicate ideas, test flows and improve usability.',
+    ],
+    [
+      Code2,
+      'Vibe Coding & Web Builds',
+      'Turning Figma concepts into responsive websites using Framer, HTML, CSS and AI-assisted development workflows.',
+    ],
+    [
+      BookOpen,
+      'Visual Communication',
+      'Turning complex information into clear layouts, illustrations, presentations, posters and visual stories.',
+    ],
+    [
+      PenTool,
+      'Brand & Graphic Design',
+      'Developing brand identities, typography, campaign visuals, packaging and communication assets.',
+    ],
+  ] as const;
+
+  useEffect(() => {
+    const node = section.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.16 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      ref={section}
+      className={`services-grid-section ${visible ? 'is-visible' : ''}`}
+      aria-label="Design services"
+    >
+      <div className="services-grid">
+        {services.map(([Icon, title, body]) => (
+          <article className="service-card" key={title}>
+            <div className="service-icon">
+              <Icon />
+            </div>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <>
@@ -880,6 +953,7 @@ export default function Home() {
       <main>
         <ReferenceHero />
         <WhatIBring />
+        <ServicesGrid />
       </main>
       <Overlays />
     </>
