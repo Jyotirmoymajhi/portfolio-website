@@ -3,10 +3,12 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BriefcaseBusiness,
+  Image as ImageIcon,
+  LayoutGrid,
   MapPin,
   MoveRight,
+  Palette,
   PenTool,
-  Search,
   Sparkles,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -844,32 +846,27 @@ function WhatIBring() {
         </p>
       </div>
       <div className="bring-shapes" aria-hidden="true">
-        <div className="bring-shape bring-shape-pointer">
-          <span className="dotted-cursor" />
-          <span className="cursor-stem stem-one" />
-          <span className="cursor-stem stem-two" />
-          <span className="bezier-curve" />
-          <span className="shape-node node-a" />
-          <span className="shape-node node-b" />
-          <span className="shape-node node-c" />
+        <div className="design-tile tile-type">
+          <span className="type-mark">Aa</span>
+          <i className="tile-handle handle-one" />
+          <i className="tile-handle handle-two" />
         </div>
-        <div className="bring-shape bring-shape-grid">
-          <span className="dotted-cursor" />
-          <span className="cursor-center-node" />
-          <span className="shape-grid-icon">
-            <i />
+        <div className="design-tile tile-palette">
+          <Palette />
+          <span className="palette-dots">
             <i />
             <i />
             <i />
           </span>
-          <span className="shape-node node-a" />
-          <span className="shape-node node-b" />
         </div>
-        <div className="bring-mini-icon bring-mini-search">
-          <Search />
-        </div>
-        <div className="bring-mini-icon bring-mini-pen">
+        <div className="design-tile tile-pen">
           <PenTool />
+        </div>
+        <div className="design-tile tile-grid">
+          <LayoutGrid />
+        </div>
+        <div className="design-tile tile-image">
+          <ImageIcon />
         </div>
       </div>
     </section>
