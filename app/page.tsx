@@ -610,10 +610,8 @@ function ReferenceHero() {
             Product Designer · Visual Designer
           </button>
           <h1>
-            I transform
-            <br />
-            ideas into
-            <br />
+            <span className="hero-heading-line">I transform</span>
+            <span className="hero-heading-line">ideas into</span>
             <em className="animated-impact" aria-live="polite">
               <span
                 key={animatedWords[wordIndex].text}
@@ -685,6 +683,29 @@ function ReferenceHero() {
       </button>
       <div className="reveal-hint">
         <span /> Move to reveal colour
+      </div>
+      <div className="hero-skills-marquee" aria-label="Design capabilities">
+        <div className="hero-skills-track">
+          {[0, 1].map((set) => (
+            <div
+              className="hero-skills-group"
+              aria-hidden={set === 1}
+              key={set}
+            >
+              {[
+                'User Research',
+                'Prototyping',
+                'Typography',
+                'A/B Testing',
+                'Design Systems',
+              ].map((skill) => (
+                <span className="hero-skill" key={`${set}-${skill}`}>
+                  <i /> {skill}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
