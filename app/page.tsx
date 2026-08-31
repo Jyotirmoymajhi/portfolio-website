@@ -389,6 +389,7 @@ function ReferenceHero() {
     { text: 'reality.', color: '#d14f3f' },
   ];
   const [wordIndex, setWordIndex] = useState(0);
+  const hero = useRef<HTMLElement>(null);
   const artwork = useRef<HTMLDivElement>(null);
   const reveal = useRef<HTMLDivElement>(null);
   const artCursor = useRef<HTMLDivElement>(null);
@@ -399,6 +400,9 @@ function ReferenceHero() {
   const insideArtwork = useRef(false);
   const manuallyPaused = useRef(false);
   const fadeFrame = useRef(0);
+  const wordTimer = useRef(0);
+  const cycleStarted = useRef(false);
+  const cycleComplete = useRef(false);
   const preferredVolume = useRef(0.14);
 
   const publishMusicState = () => {
@@ -415,6 +419,7 @@ function ReferenceHero() {
   const fadeInMusic = async (manual = false) => {
     const player = audio.current;
     if (!player || !insideArtwork.current || !player.paused) return;
+    if (cycleComplete.current && !manual) return;
     if (player.ended) player.currentTime = 0;
     started.current = true;
     manuallyPaused.current = false;
@@ -436,7 +441,7 @@ function ReferenceHero() {
     }
   };
 
-  const fadeOutMusic = () => {
+  const fadeOutMusic = (force = false) => {
     const player = audio.current;
     if (!player || player.paused) return;
     cancelAnimationFrame(fadeFrame.current);
@@ -445,9 +450,9 @@ function ReferenceHero() {
     const fade = (time: number) => {
       const progress = Math.min((time - began) / 650, 1);
       player.volume = startingVolume * (1 - progress);
-      if (progress < 1 && !insideArtwork.current) {
+      if (progress < 1 && (force || !insideArtwork.current)) {
         fadeFrame.current = requestAnimationFrame(fade);
-      } else if (!insideArtwork.current) {
+      } else if (force || !insideArtwork.current) {
         player.pause();
         player.volume = preferredVolume.current;
         publishMusicState();
@@ -456,12 +461,42 @@ function ReferenceHero() {
     fadeFrame.current = requestAnimationFrame(fade);
   };
 
+  const startWordMusicCycle = () => {
+    if (cycleComplete.current) return;
+    fadeInMusic();
+    if (cycleStarted.current) return;
+    cycleStarted.current = true;
+    setWordIndex(0);
+    let nextWord = 0;
+    wordTimer.current = window.setInterval(() => {
+      nextWord += 1;
+      if (nextWord < animatedWords.length) {
+        setWordIndex(nextWord);
+        return;
+      }
+      window.clearInterval(wordTimer.current);
+      cycleComplete.current = true;
+      fadeOutMusic(true);
+    }, 2600);
+  };
+
   useEffect(() => {
-    const wordTimer = window.setInterval(
-      () => setWordIndex((index) => (index + 1) % animatedWords.length),
-      2600,
+    const node = hero.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          insideArtwork.current = false;
+          fadeOutMusic(true);
+        }
+      },
+      { threshold: 0.08 },
     );
-    return () => window.clearInterval(wordTimer);
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      window.clearInterval(wordTimer.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -531,10 +566,9 @@ function ReferenceHero() {
     if (artCursor.current)
       artCursor.current.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%)`;
     artwork.current?.classList.add('is-exploring');
-    fadeInMusic();
   };
   return (
-    <section id="home" className="hero reference-hero">
+    <section ref={hero} id="home" className="hero reference-hero">
       <div className="hero-left">
         <div className="hero-copy">
           <button
@@ -580,7 +614,7 @@ function ReferenceHero() {
         onPointerEnter={() => {
           insideArtwork.current = true;
           artwork.current?.classList.add('cursor-visible');
-          fadeInMusic();
+          startWordMusicCycle();
         }}
         onPointerLeave={() => {
           insideArtwork.current = false;
