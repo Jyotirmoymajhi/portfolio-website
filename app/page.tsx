@@ -880,27 +880,7 @@ export default function Home() {
       <main>
         <ReferenceHero />
         <WhatIBring />
-        <Projects />
-        <About />
-        <Experience />
-        <section id="playground" className="playground section-pad">
-          <div>
-            <small>PLAYGROUND / 04</small>
-            <h2>
-              Experiments,
-              <br />
-              visual notes &<br />
-              <em>happy accidents.</em>
-            </h2>
-          </div>
-          <div className="play-cards">
-            <span>Type & rhythm</span>
-            <span>Motion studies</span>
-            <span>Unfinished ideas</span>
-          </div>
-        </section>
       </main>
-      <Footer />
       <Overlays />
     </>
   );
