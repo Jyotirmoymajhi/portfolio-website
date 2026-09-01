@@ -933,7 +933,25 @@ function ServicesGrid() {
     >
       <div className="services-grid">
         {services.map(([Icon, title, body]) => (
-          <article className="service-card" key={title}>
+          <article
+            className="service-card"
+            key={title}
+            onPointerMove={(event) => {
+              const bounds = event.currentTarget.getBoundingClientRect();
+              event.currentTarget.style.setProperty(
+                '--cursor-x',
+                `${event.clientX - bounds.left}px`,
+              );
+              event.currentTarget.style.setProperty(
+                '--cursor-y',
+                `${event.clientY - bounds.top}px`,
+              );
+            }}
+          >
+            <span className="service-card-fill" />
+            <span className="service-card-cursor">
+              <MousePointer2 />
+            </span>
             <div className="service-icon">
               <Icon />
             </div>
