@@ -965,12 +965,30 @@ function ServicesGrid() {
 }
 
 function VentryProject() {
+  const section = useRef<HTMLElement>(null);
   const artwork = useRef<HTMLDivElement>(null);
   const frame = useRef<number | null>(null);
   const target = useRef({ x: 50, y: 50 });
   const current = useRef({ x: 50, y: 50 });
   const active = useRef(false);
   const [tapped, setTapped] = useState(false);
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const node = section.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setEntered(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.22 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(
     () => () => {
@@ -988,57 +1006,102 @@ function VentryProject() {
   };
 
   return (
-    <section id="ventry" className="ventry-project" aria-label="Ventry project">
-      <link rel="preload" as="image" href="/ventry-black-white.png" />
-      <link rel="preload" as="image" href="/ventry-colour.png" />
-      <div
-        ref={artwork}
-        className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
-        onPointerEnter={(event) => {
-          if (event.pointerType === 'touch') return;
-          active.current = true;
-          artwork.current?.classList.add('is-hovered');
-          if (frame.current !== null) cancelAnimationFrame(frame.current);
-          frame.current = requestAnimationFrame(animateReveal);
-        }}
-        onPointerMove={(event) => {
-          if (event.pointerType === 'touch') return;
-          const bounds = event.currentTarget.getBoundingClientRect();
-          target.current = {
-            x: ((event.clientX - bounds.left) / bounds.width) * 100,
-            y: ((event.clientY - bounds.top) / bounds.height) * 100,
-          };
-        }}
-        onPointerLeave={() => {
-          active.current = false;
-          artwork.current?.classList.remove('is-hovered');
-          if (frame.current !== null) cancelAnimationFrame(frame.current);
-          frame.current = null;
-        }}
-        onPointerDown={(event) => {
-          if (event.pointerType === 'touch') setTapped((value) => !value);
-        }}
-      >
-        <img
-          className="ventry-layer ventry-mono"
-          src="/ventry-black-white.png"
-          alt="Ventry restaurant operations product system connecting inventory, vendors, sourcing and delivery"
-          width="1792"
-          height="1024"
-        />
-        <img
-          className="ventry-layer ventry-colour"
-          src="/ventry-colour.png"
-          alt=""
-          aria-hidden="true"
-          width="1792"
-          height="1024"
-        />
-        <a
-          className="ventry-project-link"
-          href="#ventry"
-          aria-label="View Ventry project"
-        />
+    <section
+      ref={section}
+      id="ventry"
+      className={`ventry-project ${entered ? 'is-visible' : ''}`}
+      aria-labelledby="ventry-title"
+    >
+      <link rel="preload" as="image" href="/ventry-editorial-mono.jpg" />
+      <link rel="preload" as="image" href="/ventry-editorial-colour.jpg" />
+      <div className="ventry-editorial">
+        <div className="ventry-left">
+          <p className="ventry-label">01 — PRODUCT SYSTEM</p>
+          <h2 id="ventry-title">VENTRY</h2>
+          <p className="ventry-categories">
+            <span>UX RESEARCH</span>
+            <i>·</i>
+            <span>OMNICHANNEL</span>
+            <i>·</i>
+            <span>PRODUCT DESIGN</span>
+          </p>
+          <div className="ventry-annotation" aria-hidden="true">
+            <span>
+              one connected
+              <br />
+              flow
+            </span>
+            <b>→</b>
+          </div>
+          <p className="ventry-support">
+            Designed through research, systems thinking and real operational
+            needs.
+          </p>
+        </div>
+        <div
+          ref={artwork}
+          className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
+          onPointerEnter={(event) => {
+            if (event.pointerType === 'touch') return;
+            active.current = true;
+            artwork.current?.classList.add('is-hovered');
+            if (frame.current !== null) cancelAnimationFrame(frame.current);
+            frame.current = requestAnimationFrame(animateReveal);
+          }}
+          onPointerMove={(event) => {
+            if (event.pointerType === 'touch') return;
+            const bounds = event.currentTarget.getBoundingClientRect();
+            target.current = {
+              x: ((event.clientX - bounds.left) / bounds.width) * 100,
+              y: ((event.clientY - bounds.top) / bounds.height) * 100,
+            };
+          }}
+          onPointerLeave={() => {
+            active.current = false;
+            artwork.current?.classList.remove('is-hovered');
+            if (frame.current !== null) cancelAnimationFrame(frame.current);
+            frame.current = null;
+          }}
+          onPointerDown={(event) => {
+            if (event.pointerType === 'touch') setTapped((value) => !value);
+          }}
+        >
+          <img
+            className="ventry-layer ventry-mono"
+            src="/ventry-editorial-mono.jpg"
+            alt="Ventry omnichannel restaurant operations and inventory management system"
+            width="1440"
+            height="900"
+          />
+          <img
+            className="ventry-layer ventry-colour"
+            src="/ventry-editorial-colour.jpg"
+            alt=""
+            aria-hidden="true"
+            width="1440"
+            height="900"
+          />
+        </div>
+        <div className="ventry-right">
+          <h3>
+            <span>RESTAURANT OPERATIONS,</span>
+            <span>CONNECTED.</span>
+          </h3>
+          <p className="ventry-description">
+            A unified experience connecting inventory, vendors, sourcing and
+            delivery—helping restaurant teams plan faster with clearer
+            visibility.
+          </p>
+          <a
+            className="ventry-button"
+            href="https://www.behance.net/gallery/243632661/Ventry-An-Omnichannel-UX-Case-Study"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>VIEW PROJECT</span>
+            <i>↗</i>
+          </a>
+        </div>
       </div>
     </section>
   );
