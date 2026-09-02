@@ -964,6 +964,86 @@ function ServicesGrid() {
   );
 }
 
+function VentryProject() {
+  const artwork = useRef<HTMLDivElement>(null);
+  const frame = useRef<number | null>(null);
+  const target = useRef({ x: 50, y: 50 });
+  const current = useRef({ x: 50, y: 50 });
+  const active = useRef(false);
+  const [tapped, setTapped] = useState(false);
+
+  useEffect(
+    () => () => {
+      if (frame.current !== null) cancelAnimationFrame(frame.current);
+    },
+    [],
+  );
+
+  const animateReveal = () => {
+    current.current.x += (target.current.x - current.current.x) * 0.16;
+    current.current.y += (target.current.y - current.current.y) * 0.16;
+    artwork.current?.style.setProperty('--paint-x', `${current.current.x}%`);
+    artwork.current?.style.setProperty('--paint-y', `${current.current.y}%`);
+    if (active.current) frame.current = requestAnimationFrame(animateReveal);
+  };
+
+  return (
+    <section id="ventry" className="ventry-project" aria-label="Ventry project">
+      <link rel="preload" as="image" href="/ventry-black-white.png" />
+      <link rel="preload" as="image" href="/ventry-colour.png" />
+      <div
+        ref={artwork}
+        className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
+        onPointerEnter={(event) => {
+          if (event.pointerType === 'touch') return;
+          active.current = true;
+          artwork.current?.classList.add('is-hovered');
+          if (frame.current !== null) cancelAnimationFrame(frame.current);
+          frame.current = requestAnimationFrame(animateReveal);
+        }}
+        onPointerMove={(event) => {
+          if (event.pointerType === 'touch') return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          target.current = {
+            x: ((event.clientX - bounds.left) / bounds.width) * 100,
+            y: ((event.clientY - bounds.top) / bounds.height) * 100,
+          };
+        }}
+        onPointerLeave={() => {
+          active.current = false;
+          artwork.current?.classList.remove('is-hovered');
+          if (frame.current !== null) cancelAnimationFrame(frame.current);
+          frame.current = null;
+        }}
+        onPointerDown={(event) => {
+          if (event.pointerType === 'touch') setTapped((value) => !value);
+        }}
+      >
+        <img
+          className="ventry-layer ventry-mono"
+          src="/ventry-black-white.png"
+          alt="Ventry restaurant operations product system connecting inventory, vendors, sourcing and delivery"
+          width="1792"
+          height="1024"
+        />
+        <img
+          className="ventry-layer ventry-colour"
+          src="/ventry-colour.png"
+          alt=""
+          aria-hidden="true"
+          width="1792"
+          height="1024"
+        />
+        <a
+          className="ventry-project-link"
+          href="#ventry"
+          aria-label="View Ventry project"
+        />
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <>
@@ -972,6 +1052,7 @@ export default function Home() {
         <ReferenceHero />
         <WhatIBring />
         <ServicesGrid />
+        <VentryProject />
       </main>
       <Overlays />
     </>
