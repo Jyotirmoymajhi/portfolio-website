@@ -1,4 +1,5 @@
 # dependencies
+/.openai
 /node_modules
 /.portablegit/
 /.portablegit.exe
