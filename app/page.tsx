@@ -964,6 +964,48 @@ function ServicesGrid() {
   );
 }
 
+function SelectedWorkIntro() {
+  const section = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = section.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      ref={section}
+      className={`selected-work-intro ${visible ? 'is-visible' : ''}`}
+      aria-labelledby="selected-work-title"
+    >
+      <div className="selected-work-inner">
+        <p className="selected-work-eyebrow">Selected Work</p>
+        <h2 id="selected-work-title">
+          <span>Projects shaped through research,</span>
+          <span>systems and real human needs.</span>
+        </h2>
+        <p className="selected-work-description">
+          A selection of product experiences designed to simplify complex
+          workflows and create meaningful connections.
+        </p>
+        <span className="selected-work-divider" aria-hidden="true" />
+      </div>
+    </section>
+  );
+}
+
 function VentryProject() {
   const section = useRef<HTMLElement>(null);
   const artwork = useRef<HTMLDivElement>(null);
@@ -1012,32 +1054,9 @@ function VentryProject() {
       className={`ventry-project ${entered ? 'is-visible' : ''}`}
       aria-labelledby="ventry-title"
     >
-      <link rel="preload" as="image" href="/ventry-editorial-mono.jpg" />
-      <link rel="preload" as="image" href="/ventry-editorial-colour.jpg" />
+      <link rel="preload" as="image" href="/ventry-artwork-mono.jpg" />
+      <link rel="preload" as="image" href="/ventry-artwork-colour.jpg" />
       <div className="ventry-editorial">
-        <div className="ventry-left">
-          <p className="ventry-label">01 — PRODUCT SYSTEM</p>
-          <h2 id="ventry-title">VENTRY</h2>
-          <p className="ventry-categories">
-            <span>UX RESEARCH</span>
-            <i>·</i>
-            <span>OMNICHANNEL</span>
-            <i>·</i>
-            <span>PRODUCT DESIGN</span>
-          </p>
-          <div className="ventry-annotation" aria-hidden="true">
-            <span>
-              one connected
-              <br />
-              flow
-            </span>
-            <b>→</b>
-          </div>
-          <p className="ventry-support">
-            Designed through research, systems thinking and real operational
-            needs.
-          </p>
-        </div>
         <div
           ref={artwork}
           className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
@@ -1068,29 +1087,42 @@ function VentryProject() {
         >
           <img
             className="ventry-layer ventry-mono"
-            src="/ventry-editorial-mono.jpg"
+            src="/ventry-artwork-mono.jpg"
             alt="Ventry omnichannel restaurant operations and inventory management system"
-            width="1440"
-            height="900"
+            width="1080"
+            height="904"
           />
           <img
             className="ventry-layer ventry-colour"
-            src="/ventry-editorial-colour.jpg"
+            src="/ventry-artwork-colour.jpg"
             alt=""
             aria-hidden="true"
-            width="1440"
-            height="900"
+            width="1080"
+            height="904"
           />
         </div>
         <div className="ventry-right">
+          <p className="ventry-label">01 — PRODUCT SYSTEM</p>
+          <h2 id="ventry-title">VENTRY</h2>
+          <p className="ventry-categories">
+            <span>UX RESEARCH</span>
+            <i>•</i>
+            <span>OMNICHANNEL</span>
+            <i>•</i>
+            <span>PRODUCT DESIGN</span>
+          </p>
           <h3>
-            <span>RESTAURANT OPERATIONS,</span>
-            <span>CONNECTED.</span>
+            <span>Restaurant operations,</span>
+            <span>connected.</span>
           </h3>
           <p className="ventry-description">
-            A unified experience connecting inventory, vendors, sourcing and
-            delivery—helping restaurant teams plan faster with clearer
-            visibility.
+            A unified operations platform connecting inventory, vendors,
+            sourcing and delivery—helping restaurant teams plan faster with
+            greater visibility.
+          </p>
+          <p className="ventry-support">
+            Developed through stakeholder research, workflow mapping and rapid
+            prototyping.
           </p>
           <a
             className="ventry-button"
@@ -1098,7 +1130,7 @@ function VentryProject() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span>VIEW PROJECT</span>
+            <span>View Project</span>
             <i>↗</i>
           </a>
         </div>
@@ -1115,6 +1147,7 @@ export default function Home() {
         <ReferenceHero />
         <WhatIBring />
         <ServicesGrid />
+        <SelectedWorkIntro />
         <VentryProject />
       </main>
       <Overlays />
