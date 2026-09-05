@@ -1,6 +1,7 @@
 'use client';
+/* Instrumental audio contains no speech; native images preserve paired reveal geometry. */
+/* oxlint-disable jsx-a11y/media-has-caption, next/no-img-element */
 import {
-  ArrowDownRight,
   ArrowUpRight,
   BookOpen,
   BriefcaseBusiness,
@@ -10,226 +11,18 @@ import {
   LayoutGrid,
   MapPin,
   MousePointer2,
-  MoveRight,
   Palette,
   PenTool,
   Share2,
   Sparkles,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-const projects = [
-  [
-    '01',
-    'VENTRY',
-    'Fintech · Product design',
-    '2026',
-    'ventry',
-    'Making complex investment decisions feel calm, legible and human.',
-  ],
-  [
-    '02',
-    'DreamHome OS',
-    'Proptech · Service design',
-    '2025',
-    'dream',
-    'One thoughtful operating system for the emotional work of finding a home.',
-  ],
-  [
-    '03',
-    'Sowaka',
-    'Wellbeing · Brand system',
-    '2025',
-    'sowaka',
-    'A gentle everyday ritual shaped through identity, product and motion.',
-  ],
-  [
-    '04',
-    'Airport Anxiety Navigator',
-    'Travel · UX research',
-    '2024',
-    'airport',
-    'Reducing uncertainty at every step of an unfamiliar journey.',
-  ],
-  [
-    '05',
-    'Inclusive Sikh Learning',
-    'Education · Accessibility',
-    '2024',
-    'sikh',
-    'A learning experience designed across language, ability and generation.',
-  ],
-];
-function Hero() {
-  const hero = useRef<HTMLElement>(null),
-    reveal = useRef<HTMLDivElement>(null),
-    image = useRef<HTMLDivElement>(null),
-    copy = useRef<HTMLDivElement>(null),
-    target = useRef({ x: 72, y: 44 }),
-    current = useRef({ x: 72, y: 44 });
-  useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      current.current.x += (target.current.x - current.current.x) * 0.1;
-      current.current.y += (target.current.y - current.current.y) * 0.1;
-      const { x, y } = current.current;
-      reveal.current?.style.setProperty('--mx', `${x}%`);
-      reveal.current?.style.setProperty('--my', `${y}%`);
-      if (image.current)
-        image.current.style.transform = `translate3d(${(x - 50) * -0.16}px,${(y - 50) * -0.1}px,0) scale(1.025)`;
-      if (copy.current)
-        copy.current.style.transform = `translate3d(${(x - 50) * 0.025}px,${(y - 50) * 0.02}px,0)`;
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-  const move = (e: React.PointerEvent) => {
-    const r = hero.current?.getBoundingClientRect();
-    if (r)
-      target.current = {
-        x: ((e.clientX - r.left) / r.width) * 100,
-        y: ((e.clientY - r.top) / r.height) * 100,
-      };
-  };
-  return (
-    <section id="home" ref={hero} onPointerMove={move} className="hero">
-      <div ref={image} className="hero-images" aria-hidden="true">
-        <div className="hero-image hero-mono" />
-        <div ref={reveal} className="hero-image hero-color" />
-      </div>
-      <div className="hero-shade" />
-      <div ref={copy} className="hero-copy">
-        <button
-          className="eyebrow"
-          onClick={() =>
-            document
-              .querySelector('#experience')
-              ?.scrollIntoView({ behavior: 'smooth' })
-          }
-        >
-          Product designer · Visual thinker <ArrowUpRight size={14} />
-        </button>
-        <h1>
-          Designing experiences
-          <br />
-          that <em>connect</em> people.
-        </h1>
-        <p>
-          I’m Jyotirmoy Majhi — turning human problems into meaningful products,
-          visual systems and memorable digital experiences.
-        </p>
-        <div className="hero-actions">
-          <a className="primary-button" href="#projects">
-            Explore selected work <ArrowDownRight size={18} />
-          </a>
-          <button
-            className="text-button"
-            onClick={() => window.dispatchEvent(new Event('open-about'))}
-          >
-            A little about me <MoveRight size={18} />
-          </button>
-        </div>
-      </div>
-      <button
-        className="kolkata-mark"
-        onClick={() => window.dispatchEvent(new Event('open-kolkata'))}
-      >
-        <span>কলকাতা</span>
-        <small>KOLKATA · 22.5726° N</small>
-      </button>
-      <div className="reveal-hint">
-        <span /> Move to reveal colour
-      </div>
-      <a className="scroll-note" href="#projects">
-        Scroll to explore <ArrowDownRight size={15} />
-      </a>
-    </section>
-  );
-}
-function Navbar() {
-  const [open, setOpen] = useState(false);
-  return (
-    <header className="navbar">
-      <a href="#home" className="monogram">
-        JM<span>®</span>
-      </a>
-      <nav>
-        {['Projects', 'About', 'Experience', 'Playground'].map((x) => (
-          <a key={x} href={`#${x.toLowerCase()}`}>
-            <span>{x}</span>
-          </a>
-        ))}
-      </nav>
-      <div className="nav-end">
-        <a href="#contact" className="availability">
-          <i /> Available for work
-        </a>
-        <button className="menu" onClick={() => setOpen(!open)}>
-          {open ? 'Close' : 'Menu'}
-        </button>
-      </div>
-      {open && (
-        <div className="mobile-menu">
-          {['Projects', 'About', 'Experience', 'Playground', 'Contact'].map(
-            (x) => (
-              <a
-                onClick={() => setOpen(false)}
-                key={x}
-                href={`#${x.toLowerCase()}`}
-              >
-                {x}
-                <ArrowUpRight />
-              </a>
-            ),
-          )}
-        </div>
-      )}
-    </header>
-  );
-}
-function Projects() {
-  return (
-    <section id="projects" className="projects section-pad">
-      <div className="section-kicker">
-        <span>01</span>
-        <p>Selected work</p>
-        <small>2024—2026</small>
-      </div>
-      <div className="project-intro">
-        <h2>
-          Ideas made
-          <br />
-          <em>tangible.</em>
-        </h2>
-        <p>
-          Selected work across product strategy, research, interaction and
-          visual systems — each shaped around a real human tension.
-        </p>
-      </div>
-      <div className="project-list">
-        {projects.map((p) => (
-          <article className="project" key={p[1]} tabIndex={0}>
-            <div className={`project-art ${p[4]}`}>
-              <span className="project-number">{p[0]}</span>
-              <div className="art-orbit">
-                <span>{p[1].slice(0, 2)}</span>
-              </div>
-              <ArrowUpRight className="project-arrow" />
-            </div>
-            <div className="project-meta">
-              <div>
-                <small>{p[2]}</small>
-                <h3>{p[1]}</h3>
-              </div>
-              <p>{p[5]}</p>
-              <span>{p[3]}</span>
-            </div>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
 function About() {
   return (
     <section id="about" className="about section-pad">
@@ -355,48 +148,67 @@ function Overlays() {
       window.removeEventListener('open-kolkata', k);
     };
   }, []);
-  if (!o) return null;
   return (
-    <div className="overlay" role="dialog" aria-modal="true">
-      <button className="overlay-close" onClick={() => setO(null)}>
-        Close ×
-      </button>
-      <div className="overlay-inner">
-        {o === 'about' ? (
-          <>
-            <BriefcaseBusiness />
-            <small>ABOUT JYOTIRMOY</small>
-            <h2>A designer who believes clarity can still have soul.</h2>
-            <p>
-              I move between product strategy, visual design and research —
-              looking for the human thread that helps the whole experience make
-              sense.
-            </p>
-          </>
-        ) : (
-          <>
-            <MapPin />
-            <small>CITY OF JOY</small>
-            <h2>Kolkata taught me to design in layers.</h2>
-            <p>
-              Heritage beside momentum. Precise craft beside beautiful
-              improvisation. The city is part of how I observe, connect and
-              create.
-            </p>
-          </>
-        )}
-      </div>
-    </div>
+    <Dialog
+      open={o !== null}
+      onOpenChange={(open) => {
+        if (!open) setO(null);
+      }}
+    >
+      <DialogContent
+        className="overlay"
+        showCloseButton={false}
+        style={{
+          top: 0,
+          left: 0,
+          transform: 'none',
+          maxWidth: 'none',
+          width: '100%',
+          height: '100%',
+          borderRadius: 0,
+          overflowY: 'auto',
+        }}
+      >
+        <DialogClose className="overlay-close">Close</DialogClose>
+        <div className="overlay-inner">
+          {o === 'about' ? (
+            <>
+              <BriefcaseBusiness />
+              <small>ABOUT JYOTIRMOY</small>
+              <DialogTitle>
+                A designer who believes clarity can still have soul.
+              </DialogTitle>
+              <p>
+                I move between product strategy, visual design and research —
+                looking for the human thread that helps the whole experience
+                make sense.
+              </p>
+            </>
+          ) : (
+            <>
+              <MapPin />
+              <small>CITY OF JOY</small>
+              <DialogTitle>Kolkata taught me to design in layers.</DialogTitle>
+              <p>
+                Heritage beside momentum. Precise craft beside beautiful
+                improvisation. The city is part of how I observe, connect and
+                create.
+              </p>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
+const animatedWords = [
+  { text: 'impact.', color: '#f04a13' },
+  { text: 'meaning.', color: '#2f8f62' },
+  { text: 'experiences.', color: '#3977bd' },
+  { text: 'possibilities.', color: '#7a59a8' },
+  { text: 'reality.', color: '#d14f3f' },
+];
 function ReferenceHero() {
-  const animatedWords = [
-    { text: 'impact.', color: '#f04a13' },
-    { text: 'meaning.', color: '#2f8f62' },
-    { text: 'experiences.', color: '#3977bd' },
-    { text: 'possibilities.', color: '#7a59a8' },
-    { text: 'reality.', color: '#d14f3f' },
-  ];
   const [wordIndex, setWordIndex] = useState(0);
   const hero = useRef<HTMLElement>(null);
   const artwork = useRef<HTMLDivElement>(null);
@@ -500,10 +312,11 @@ function ReferenceHero() {
       { threshold: 0.08 },
     );
     observer.observe(node);
-    wordTimer.current = window.setInterval(() => {
-      setWordIndex((index) => (index + 1) % animatedWords.length);
-      playWordChangeSound();
-    }, 2100);
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      wordTimer.current = window.setInterval(() => {
+        setWordIndex((index) => (index + 1) % animatedWords.length);
+        void playWordChangeSound();
+      }, 2100);
     return () => {
       observer.disconnect();
       window.clearInterval(wordTimer.current);
@@ -514,13 +327,13 @@ function ReferenceHero() {
     const savedVolume = Number(sessionStorage.getItem('jyoti-music-volume'));
     if (savedVolume >= 0.05 && savedVolume <= 0.5)
       preferredVolume.current = savedVolume;
-    manuallyPaused.current = false;
-    sessionStorage.setItem('jyoti-music-paused', 'false');
+    manuallyPaused.current =
+      sessionStorage.getItem('jyoti-music-paused') === 'true';
 
     const unlockAudio = () => {
       audioUnlocked.current = true;
-      if (insideArtwork.current) playAmbientMusic();
-      else playWordChangeSound();
+      if (insideArtwork.current) void playAmbientMusic();
+      else void playWordChangeSound();
       window.removeEventListener('pointerdown', unlockAudio);
       window.removeEventListener('pointermove', unlockAudio);
       window.removeEventListener('keydown', unlockAudio);
@@ -544,8 +357,8 @@ function ReferenceHero() {
         manuallyPaused.current = false;
         audioUnlocked.current = true;
         sessionStorage.setItem('jyoti-music-paused', 'false');
-        if (insideArtwork.current) playAmbientMusic();
-        else playWordChangeSound();
+        if (insideArtwork.current) void playAmbientMusic();
+        else void playWordChangeSound();
       }
     };
     const changeVolume = (event: Event) => {
@@ -568,7 +381,6 @@ function ReferenceHero() {
     window.addEventListener('keydown', unlockAudio);
     window.addEventListener('touchstart', unlockAudio, { passive: true });
     return () => {
-      cancelAnimationFrame(fadeFrame.current);
       window.removeEventListener('toggle-music', toggle);
       window.removeEventListener('set-music-volume', changeVolume);
       window.removeEventListener('pointerdown', unlockAudio);
@@ -579,6 +391,7 @@ function ReferenceHero() {
   }, []);
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let raf = 0;
     const tick = () => {
       current.current.x += (target.current.x - current.current.x) * 0.095;
@@ -621,7 +434,8 @@ function ReferenceHero() {
           <h1>
             <span className="hero-heading-line">I transform</span>
             <span className="hero-heading-line">ideas into</span>
-            <em className="animated-impact" aria-live="polite">
+            <span className="sr-only">meaningful experiences.</span>
+            <em className="animated-impact" aria-hidden="true">
               <span
                 key={animatedWords[wordIndex].text}
                 style={{ color: animatedWords[wordIndex].color }}
@@ -637,7 +451,7 @@ function ReferenceHero() {
           </p>
           <a className="primary-button resume-button" href="#contact">
             <span className="resume-label">
-              Download Resume <ArrowUpRight size={17} />
+              Get in touch <ArrowUpRight size={17} />
             </span>
           </a>
         </div>
@@ -650,7 +464,7 @@ function ReferenceHero() {
           insideArtwork.current = true;
           artwork.current?.classList.add('cursor-visible');
           stopWordChangeSound();
-          playAmbientMusic();
+          void playAmbientMusic();
         }}
         onPointerLeave={() => {
           insideArtwork.current = false;
@@ -664,6 +478,8 @@ function ReferenceHero() {
           <span />
         </div>
       </div>
+      {/* Instrumental audio has no speech requiring captions. */}
+      {/* oxlint-disable-next-line jsx-a11y/media-has-caption */}
       <audio
         ref={audio}
         src="/hero-word-change.mp3"
@@ -792,11 +608,16 @@ function ReferenceNavbar() {
       <a href="#contact" className="availability">
         <i /> Available for Work
       </a>
-      <button className="menu" onClick={() => setOpen(!open)}>
+      <button
+        className="menu"
+        aria-expanded={open}
+        aria-controls="mobile-navigation"
+        onClick={() => setOpen(!open)}
+      >
         {open ? 'Close' : 'Menu'}
       </button>
       {open && (
-        <div className="mobile-menu">
+        <div id="mobile-navigation" className="mobile-menu">
           {['Works', 'About', 'Experience', 'Contact'].map((x) => (
             <a
               onClick={() => setOpen(false)}
@@ -987,6 +808,7 @@ function SelectedWorkIntro() {
   return (
     <section
       ref={section}
+      id="projects"
       className={`selected-work-intro ${visible ? 'is-visible' : ''}`}
       aria-labelledby="selected-work-title"
     >
@@ -1085,6 +907,8 @@ function VentryProject() {
             if (event.pointerType === 'touch') setTapped((value) => !value);
           }}
         >
+          {/* Paired reveal layers need matching native image geometry. */}
+          {/* oxlint-disable-next-line next/no-img-element */}
           <img
             className="ventry-layer ventry-mono"
             src="/ventry-artwork-mono.jpg"
@@ -1149,7 +973,10 @@ export default function Home() {
         <ServicesGrid />
         <SelectedWorkIntro />
         <VentryProject />
+        <About />
+        <Experience />
       </main>
+      <Footer />
       <Overlays />
     </>
   );

@@ -3956,3 +3956,6 @@ main:after {
     --portfolio-rail: 4vw;
   }
 }
+
+/* Keep anchor destinations clear of the fixed navigation. */
+section[id], footer[id] { scroll-margin-top: 90px; }
