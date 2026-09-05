@@ -2,7 +2,7 @@
 
 A product design and visual thinking portfolio for Jyotirmoy Majhi, featuring selected work, including the Ventry project.
 
-**Live site:** [project-portfolio-six-beta.vercel.app](https://project-portfolio-six-beta.vercel.app)
+**Live site:** [https://jyotirmoy17.vercel.app/](https://jyotirmoy17.vercel.app/)
 
 ## About
 
@@ -88,12 +88,6 @@ public/           Images, audio, video, and other static assets
 vite.config.ts    Vite, Vinext, Tailwind, and deployment configuration
 vercel.json       Vercel build configuration
 ```
-
-## Contact
-
-- Email: [hello@jyotirmoy.design](mailto:hello@jyotirmoy.design)
-- GitHub: [Jyotirmoymajhi/portfolio-website](https://github.com/Jyotirmoymajhi/portfolio-website)
-
 ## License
 
 This project is a personal portfolio. The source code and visual assets are not licensed for redistribution without permission.
