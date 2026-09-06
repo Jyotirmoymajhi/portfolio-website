@@ -2,7 +2,7 @@
 
 A product design and visual thinking portfolio for Jyotirmoy Majhi, featuring selected work, including the Ventry project.
 
-**Live site:** [https://jyotirmoy17.vercel.app/](https://jyotirmoy17.vercel.app/)
+**Live site:** [https://jyotirmoy.work/](https://jyotirmoy.work/)
 
 ## About
 

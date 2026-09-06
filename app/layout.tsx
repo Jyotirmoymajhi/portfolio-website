@@ -13,7 +13,23 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {title:'Jyotirmoy Majhi — Product Designer & Visual Thinker',description:'Portfolio of Jyotirmoy Majhi, a product designer and visual thinker from Kolkata shaping meaningful digital experiences.'};
+export const metadata: Metadata = {
+  metadataBase: new URL('https://jyotirmoy.work'),
+  title: 'Jyotirmoy Majhi — Product Designer & Visual Thinker',
+  description:
+    'Portfolio of Jyotirmoy Majhi, a product designer and visual thinker from Kolkata shaping meaningful digital experiences.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Jyotirmoy Majhi — Product Designer & Visual Thinker',
+    description:
+      'Portfolio of Jyotirmoy Majhi, a product designer and visual thinker from Kolkata shaping meaningful digital experiences.',
+    url: 'https://jyotirmoy.work',
+    siteName: 'Jyotirmoy Majhi',
+    type: 'website',
+  },
+};
 
 export default function RootLayout({
   children,

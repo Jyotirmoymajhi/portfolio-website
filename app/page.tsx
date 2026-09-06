@@ -126,8 +126,8 @@ function Footer() {
         <br />
         <em>meaningful.</em>
       </h2>
-      <a href="mailto:hello@jyotirmoy.design">
-        hello@jyotirmoy.design <ArrowUpRight />
+      <a href="mailto:hello@jyotirmoy.work">
+        hello@jyotirmoy.work <ArrowUpRight />
       </a>
       <div className="footer-bottom">
         <span>© 2026 Jyotirmoy Majhi</span>
