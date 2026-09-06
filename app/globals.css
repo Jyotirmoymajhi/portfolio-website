@@ -3935,6 +3935,13 @@ main:after {
     linear-gradient(#cfd4da, #cfd4da) var(--portfolio-rail) 100% /
       calc(100% - (var(--portfolio-rail) * 2)) 1px no-repeat;
 }
+.what-i-bring::after {
+  background:
+    linear-gradient(#cfd4da, #cfd4da) var(--portfolio-rail) 0 / 1px 100%
+      no-repeat,
+    linear-gradient(#cfd4da, #cfd4da) calc(100% - var(--portfolio-rail)) 0 / 1px
+      100% no-repeat;
+}
 .ventry-project {
   padding-left: var(--portfolio-rail);
   padding-right: var(--portfolio-rail);

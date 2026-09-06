@@ -822,7 +822,6 @@ function SelectedWorkIntro() {
           A selection of product experiences designed to simplify complex
           workflows and create meaningful connections.
         </p>
-        <span className="selected-work-divider" aria-hidden="true" />
       </div>
     </section>
   );
