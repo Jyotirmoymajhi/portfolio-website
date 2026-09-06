@@ -11,7 +11,8 @@
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
-    "typecheck": "tsc --noEmit --incremental false"
+    "typecheck": "tsc --noEmit --incremental false",
+    "test:motion": "playwright test"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -22,6 +23,7 @@
     "cmdk": "1.1.1",
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.2",
+    "gsap": "^3.15.0",
     "input-otp": "1.4.2",
     "lucide-react": "1.31.0",
     "nitro": "^3.0.260903-beta",
@@ -40,6 +42,7 @@
     "@cloudflare/vite-plugin": "1.37.1",
     "@cloudflare/workers-types": "4.20260515.1",
     "@openai/sites-vite-plugin": "0.2.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.2.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "22.19.19",

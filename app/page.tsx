@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { ProjectMotion } from '@/components/project-motion';
 import {
   Dialog,
   DialogClose,
@@ -835,23 +836,6 @@ function VentryProject() {
   const current = useRef({ x: 50, y: 50 });
   const active = useRef(false);
   const [tapped, setTapped] = useState(false);
-  const [entered, setEntered] = useState(false);
-
-  useEffect(() => {
-    const node = section.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setEntered(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.22 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(
     () => () => {
@@ -872,7 +856,7 @@ function VentryProject() {
     <section
       ref={section}
       id="ventry"
-      className={`ventry-project ${entered ? 'is-visible' : ''}`}
+      className="ventry-project is-visible"
       aria-labelledby="ventry-title"
     >
       <link rel="preload" as="image" href="/ventry-artwork-mono.jpg" />
@@ -906,23 +890,25 @@ function VentryProject() {
             if (event.pointerType === 'touch') setTapped((value) => !value);
           }}
         >
-          {/* Paired reveal layers need matching native image geometry. */}
-          {/* oxlint-disable-next-line next/no-img-element */}
-          <img
-            className="ventry-layer ventry-mono"
-            src="/ventry-artwork-mono.jpg"
-            alt="Ventry omnichannel restaurant operations and inventory management system"
-            width="1080"
-            height="904"
-          />
-          <img
-            className="ventry-layer ventry-colour"
-            src="/ventry-artwork-colour.jpg"
-            alt=""
-            aria-hidden="true"
-            width="1080"
-            height="904"
-          />
+          <div className="project-image-entrance">
+            {/* Paired reveal layers need matching native image geometry. */}
+            {/* oxlint-disable-next-line next/no-img-element */}
+            <img
+              className="ventry-layer ventry-mono"
+              src="/ventry-artwork-mono.jpg"
+              alt="Ventry omnichannel restaurant operations and inventory management system"
+              width="1080"
+              height="904"
+            />
+            <img
+              className="ventry-layer ventry-colour"
+              src="/ventry-artwork-colour.jpg"
+              alt=""
+              aria-hidden="true"
+              width="1080"
+              height="904"
+            />
+          </div>
         </div>
         <div className="ventry-right">
           <p className="ventry-label">01 — PRODUCT SYSTEM</p>
@@ -962,6 +948,117 @@ function VentryProject() {
   );
 }
 
+function TavvroProject() {
+  const section = useRef<HTMLElement>(null);
+  const artwork = useRef<HTMLDivElement>(null);
+  const frame = useRef<number | null>(null);
+  const target = useRef({ x: 50, y: 50 });
+  const current = useRef({ x: 50, y: 50 });
+  const active = useRef(false);
+  const [tapped, setTapped] = useState(false);
+
+  useEffect(
+    () => () => {
+      if (frame.current !== null) cancelAnimationFrame(frame.current);
+    },
+    [],
+  );
+
+  const animateReveal = () => {
+    current.current.x += (target.current.x - current.current.x) * 0.16;
+    current.current.y += (target.current.y - current.current.y) * 0.16;
+    artwork.current?.style.setProperty('--paint-x', `${current.current.x}%`);
+    artwork.current?.style.setProperty('--paint-y', `${current.current.y}%`);
+    if (active.current) frame.current = requestAnimationFrame(animateReveal);
+  };
+
+  return (
+    <section
+      ref={section}
+      id="tavvro"
+      className="ventry-project tavvro-project is-visible"
+      aria-labelledby="tavvro-title"
+    >
+      <link rel="preload" as="image" href="/tavvro-mono.png" />
+      <link rel="preload" as="image" href="/tavvro-colour.png" />
+      <div className="ventry-editorial">
+        <div
+          ref={artwork}
+          className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
+          onPointerEnter={(event) => {
+            if (event.pointerType === 'touch') return;
+            active.current = true;
+            artwork.current?.classList.add('is-hovered');
+            if (frame.current !== null) cancelAnimationFrame(frame.current);
+            frame.current = requestAnimationFrame(animateReveal);
+          }}
+          onPointerMove={(event) => {
+            if (event.pointerType === 'touch') return;
+            const bounds = event.currentTarget.getBoundingClientRect();
+            target.current = {
+              x: ((event.clientX - bounds.left) / bounds.width) * 100,
+              y: ((event.clientY - bounds.top) / bounds.height) * 100,
+            };
+          }}
+          onPointerLeave={() => {
+            active.current = false;
+            artwork.current?.classList.remove('is-hovered');
+            if (frame.current !== null) cancelAnimationFrame(frame.current);
+            frame.current = null;
+          }}
+          onPointerDown={(event) => {
+            if (event.pointerType === 'touch') setTapped((value) => !value);
+          }}
+        >
+          <div className="project-image-entrance">
+            <figure
+              className="ventry-layer ventry-mono tavvro-image"
+              aria-label="TAVVRO campus laundry service with a student drop-off counter and live order tracking"
+              style={{ backgroundImage: 'url(/tavvro-mono.png)' }}
+            />
+            <div
+              className="ventry-layer ventry-colour tavvro-image"
+              aria-hidden="true"
+              style={{ backgroundImage: 'url(/tavvro-colour.png)' }}
+            />
+          </div>
+        </div>
+        <div className="ventry-right">
+          <p className="ventry-label">02 — SERVICE EXPERIENCE</p>
+          <h2 id="tavvro-title">TAVVRO</h2>
+          <p className="ventry-categories">
+            <span>UX RESEARCH</span>
+            <i>•</i>
+            <span>SERVICE DESIGN</span>
+            <i>•</i>
+            <span>MOBILE APP</span>
+          </p>
+          <h3>
+            <span>Campus laundry,</span>
+            <span>simplified.</span>
+          </h3>
+          <p className="ventry-description">
+            An eco-friendly, pay-by-weight laundry service with flexible booking,
+            seamless drop-offs and live tracking built around real student routines.
+          </p>
+          <p className="ventry-support">
+            Designed through research, systems thinking and real operational needs.
+          </p>
+          <a
+            className="ventry-button"
+            href="/tavvro-colour.png"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>View Project Preview</span>
+            <i>↗</i>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <>
@@ -971,7 +1068,10 @@ export default function Home() {
         <WhatIBring />
         <ServicesGrid />
         <SelectedWorkIntro />
-        <VentryProject />
+        <ProjectMotion>
+          <VentryProject />
+          <TavvroProject />
+        </ProjectMotion>
         <About />
         <Experience />
       </main>

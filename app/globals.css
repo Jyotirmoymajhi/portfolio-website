@@ -3966,3 +3966,144 @@ main:after {
 
 /* Keep anchor destinations clear of the fixed navigation. */
 section[id], footer[id] { scroll-margin-top: 90px; }
+
+/* Project 02 displays the illustration area of the paired references. */
+.tavvro-project .ventry-artwork {
+  align-self: center;
+  height: auto;
+  aspect-ratio: 1080 / 904;
+}
+.tavvro-project .tavvro-image {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: none;
+  background-size: 133.333333% 100%;
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+.tavvro-project .ventry-right h3 { color: #0866ff; }
+
+.tavvro-project .tavvro-image { margin: 0; }
+
+/* Progressive enhancement: projects remain readable without animation JS. */
+.projects-motion .ventry-project :is(.ventry-artwork, .ventry-right > *, .ventry-categories > *, .ventry-right h3 span) {
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+  transition: none;
+}
+.project-image-entrance {
+  position: absolute;
+  inset: 0;
+}
+.projects-motion .tavvro-project .ventry-button {
+  gap: 10px;
+}
+.projects-motion {
+  position: relative;
+  background: #fff;
+  overflow-x: clip;
+}
+.project-stage {
+  position: relative;
+}
+.project-loader {
+  --loader-exit: -25%;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  animation: project-loader-failsafe 3s step-end forwards;
+  mask-image: linear-gradient(to bottom, transparent calc(var(--loader-exit) - 20%), #000 var(--loader-exit));
+}
+.project-loader[data-complete] {
+  display: none;
+}
+.project-loader[data-active] {
+  animation-name: project-loader-active-failsafe;
+}
+@keyframes project-loader-failsafe {
+  to { visibility: hidden; pointer-events: none; }
+}
+@keyframes project-loader-active-failsafe {
+  to { visibility: hidden; pointer-events: none; }
+}
+.project-loader-art {
+  --loader-reveal: 0%;
+  position: absolute;
+  inset: 8% 12%;
+  background: url('/ventry-artwork-mono.jpg') center / contain no-repeat;
+  opacity: 0;
+  mask-image: radial-gradient(ellipse at 47% 52%, #000 0%, #000a calc(var(--loader-reveal) * 0.55), transparent var(--loader-reveal));
+}
+.project-loader-copy {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+}
+.project-loader-copy span {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+.project-loader-copy output {
+  font-family: inherit;
+  font-size: clamp(27px, 3vw, 38px);
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+@media (min-width: 768px) and (min-height: 740px) and (prefers-reduced-motion: no-preference) {
+  .projects-motion.is-pinned .project-stage {
+    height: calc(100svh - var(--project-nav-height, 92px));
+  }
+  .projects-motion.is-pinned .ventry-project {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+  }
+  .projects-motion.is-pinned .ventry-editorial {
+    height: 100%;
+    min-height: 0;
+  }
+  .projects-motion.is-pinned .tavvro-project .ventry-artwork {
+    --watercolor-reveal: 160%;
+    max-width: calc((100svh - var(--project-nav-height, 92px)) * 1080 / 904);
+    mask-image: radial-gradient(ellipse at 48% 48%, #000 0%, #000 calc(var(--watercolor-reveal) * 0.65), transparent var(--watercolor-reveal));
+  }
+}
+/* Keep the original columns and type sizes while fitting shorter desktop views. */
+@media (min-width: 1440px) and (min-height: 740px) and (max-height: 950px) {
+  .projects-motion.is-pinned .ventry-right {
+    gap: clamp(16px, 2.4vh, 23px);
+  }
+  .projects-motion.is-pinned .ventry-right > * {
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 767px) {
+  .projects-motion .ventry-artwork {
+    order: 0;
+  }
+  .project-loader-art {
+    inset: 18% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-loader,
+  .project-loader[data-active] {
+    display: none;
+  }
+  .projects-motion .project-image-entrance,
+  .projects-motion .ventry-artwork {
+    filter: none;
+    mask-image: none;
+  }
+}
