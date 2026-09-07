@@ -800,7 +800,7 @@ function VentryProject() {
             />
           </div>
         </div>
-        <div className="ventry-right">
+        <div className="ventry-right project-copy">
           <p className="ventry-label">01 — PRODUCT SYSTEM</p>
           <h2 id="ventry-title">VENTRY</h2>
           <p className="ventry-categories">
@@ -969,7 +969,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
             )}
           </div>
         </div>
-        <div className="ventry-right">
+        <div className="ventry-right project-copy">
           <p className="ventry-label">{project.label}</p>
           <h2 id={`${project.id}-title`}>{project.name}</h2>
           <p className="ventry-categories">
