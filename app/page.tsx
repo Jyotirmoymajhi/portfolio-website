@@ -16,6 +16,7 @@ import {
   Share2,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { RevealImage, PortfolioAudio } from '@/components/reveal-image';
 import { ProjectMotion } from '@/components/project-motion';
 import {
   Dialog,
@@ -98,212 +99,11 @@ const animatedWords = [
 function ReferenceHero() {
   const [wordIndex, setWordIndex] = useState(0);
   const hero = useRef<HTMLElement>(null);
-  const artwork = useRef<HTMLDivElement>(null);
-  const reveal = useRef<HTMLDivElement>(null);
-  const artCursor = useRef<HTMLDivElement>(null);
-  const audio = useRef<HTMLAudioElement>(null);
-  const ambientAudio = useRef<HTMLAudioElement>(null);
-  const target = useRef({ x: 55, y: 46 });
-  const current = useRef({ x: 55, y: 46 });
-  const insideArtwork = useRef(false);
-  const heroVisible = useRef(true);
-  const audioUnlocked = useRef(false);
-  const manuallyPaused = useRef(false);
-  const fadeFrame = useRef(0);
-  const wordTimer = useRef(0);
-  const preferredVolume = useRef(0.14);
-
-  const publishMusicState = () => {
-    window.dispatchEvent(
-      new CustomEvent('music-state', {
-        detail: {
-          playing: Boolean(
-            (audio.current && !audio.current.paused) ||
-            (ambientAudio.current && !ambientAudio.current.paused),
-          ),
-          volume: preferredVolume.current,
-        },
-      }),
-    );
-  };
-
-  const playWordChangeSound = async () => {
-    const player = audio.current;
-    if (
-      !player ||
-      !heroVisible.current ||
-      !audioUnlocked.current ||
-      insideArtwork.current ||
-      manuallyPaused.current
-    )
-      return;
-    cancelAnimationFrame(fadeFrame.current);
-    player.pause();
-    player.currentTime = 0;
-    player.volume = preferredVolume.current;
-    try {
-      await player.play();
-      publishMusicState();
-    } catch {
-      publishMusicState();
-    }
-  };
-
-  const stopWordChangeSound = () => {
-    const player = audio.current;
-    if (!player) return;
-    cancelAnimationFrame(fadeFrame.current);
-    player.pause();
-    player.currentTime = 0;
-    publishMusicState();
-  };
-
-  const playAmbientMusic = async () => {
-    const player = ambientAudio.current;
-    if (
-      !player ||
-      !insideArtwork.current ||
-      !heroVisible.current ||
-      !audioUnlocked.current ||
-      manuallyPaused.current ||
-      !player.paused
-    )
-      return;
-    player.volume = preferredVolume.current;
-    try {
-      await player.play();
-      publishMusicState();
-    } catch {
-      publishMusicState();
-    }
-  };
-
-  const stopAmbientMusic = () => {
-    const player = ambientAudio.current;
-    if (!player) return;
-    player.pause();
-    publishMusicState();
-  };
-
-  useEffect(() => {
-    const node = hero.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        heroVisible.current = entry.isIntersecting;
-        if (!entry.isIntersecting) {
-          stopWordChangeSound();
-          stopAmbientMusic();
-        }
-      },
-      { threshold: 0.08 },
-    );
-    observer.observe(node);
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-      wordTimer.current = window.setInterval(() => {
-        setWordIndex((index) => (index + 1) % animatedWords.length);
-        void playWordChangeSound();
-      }, 2100);
-    return () => {
-      observer.disconnect();
-      window.clearInterval(wordTimer.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    const savedVolume = Number(sessionStorage.getItem('jyoti-music-volume'));
-    if (savedVolume >= 0.05 && savedVolume <= 0.5)
-      preferredVolume.current = savedVolume;
-    manuallyPaused.current =
-      sessionStorage.getItem('jyoti-music-paused') === 'true';
-
-    const unlockAudio = () => {
-      audioUnlocked.current = true;
-      if (insideArtwork.current) void playAmbientMusic();
-      else void playWordChangeSound();
-      window.removeEventListener('pointerdown', unlockAudio);
-      window.removeEventListener('pointermove', unlockAudio);
-      window.removeEventListener('keydown', unlockAudio);
-      window.removeEventListener('touchstart', unlockAudio);
-    };
-
-    const toggle = () => {
-      const player = audio.current;
-      if (!player) return;
-      const anythingPlaying =
-        !player.paused ||
-        Boolean(ambientAudio.current && !ambientAudio.current.paused);
-      if (anythingPlaying) {
-        cancelAnimationFrame(fadeFrame.current);
-        player.pause();
-        ambientAudio.current?.pause();
-        manuallyPaused.current = true;
-        sessionStorage.setItem('jyoti-music-paused', 'true');
-        publishMusicState();
-      } else {
-        manuallyPaused.current = false;
-        audioUnlocked.current = true;
-        sessionStorage.setItem('jyoti-music-paused', 'false');
-        if (insideArtwork.current) void playAmbientMusic();
-        else void playWordChangeSound();
-      }
-    };
-    const changeVolume = (event: Event) => {
-      const value = (event as CustomEvent<{ volume: number }>).detail.volume;
-      preferredVolume.current = Math.max(0.05, Math.min(0.5, value));
-      sessionStorage.setItem(
-        'jyoti-music-volume',
-        String(preferredVolume.current),
-      );
-      if (audio.current && !audio.current.paused)
-        audio.current.volume = preferredVolume.current;
-      if (ambientAudio.current && !ambientAudio.current.paused)
-        ambientAudio.current.volume = preferredVolume.current;
-      publishMusicState();
-    };
-    window.addEventListener('toggle-music', toggle);
-    window.addEventListener('set-music-volume', changeVolume);
-    window.addEventListener('pointerdown', unlockAudio);
-    window.addEventListener('pointermove', unlockAudio);
-    window.addEventListener('keydown', unlockAudio);
-    window.addEventListener('touchstart', unlockAudio, { passive: true });
-    return () => {
-      window.removeEventListener('toggle-music', toggle);
-      window.removeEventListener('set-music-volume', changeVolume);
-      window.removeEventListener('pointerdown', unlockAudio);
-      window.removeEventListener('pointermove', unlockAudio);
-      window.removeEventListener('keydown', unlockAudio);
-      window.removeEventListener('touchstart', unlockAudio);
-    };
-  }, []);
-
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let raf = 0;
-    const tick = () => {
-      current.current.x += (target.current.x - current.current.x) * 0.095;
-      current.current.y += (target.current.y - current.current.y) * 0.095;
-      reveal.current?.style.setProperty('--mx', `${current.current.x}%`);
-      reveal.current?.style.setProperty('--my', `${current.current.y}%`);
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const timer = window.setInterval(() => setWordIndex(index => (index + 1) % animatedWords.length), 2100);
+    return () => window.clearInterval(timer);
   }, []);
-
-  const moveArtwork = (event: React.PointerEvent<HTMLDivElement>) => {
-    const bounds = artwork.current?.getBoundingClientRect();
-    if (!bounds) return;
-    const x = event.clientX - bounds.left;
-    const y = event.clientY - bounds.top;
-    target.current = {
-      x: (x / bounds.width) * 100,
-      y: (y / bounds.height) * 100,
-    };
-    if (artCursor.current)
-      artCursor.current.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%)`;
-    artwork.current?.classList.add('is-exploring');
-  };
   return (
     <section ref={hero} id="home" className="hero reference-hero">
       <div className="hero-left">
@@ -343,42 +143,11 @@ function ReferenceHero() {
           </a>
         </div>
       </div>
-      <div
-        ref={artwork}
-        className="hero-images"
-        onPointerMove={moveArtwork}
-        onPointerEnter={() => {
-          insideArtwork.current = true;
-          artwork.current?.classList.add('cursor-visible');
-          stopWordChangeSound();
-          void playAmbientMusic();
-        }}
-        onPointerLeave={() => {
-          insideArtwork.current = false;
-          artwork.current?.classList.remove('cursor-visible');
-          stopAmbientMusic();
-        }}
-      >
+      <RevealImage className="hero-images" instructionId="hero" hero>
         <div className="hero-image hero-mono" />
-        <div ref={reveal} className="hero-image hero-color" />
-        <div ref={artCursor} className="artwork-cursor" aria-hidden="true">
-          <span />
-        </div>
-      </div>
-      {/* Instrumental audio has no speech requiring captions. */}
-      {/* oxlint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio
-        ref={audio}
-        src="/hero-word-change.mp3"
-        preload="metadata"
-        onEnded={publishMusicState}
-      />
-      <audio
-        ref={ambientAudio}
-        src="/jyoti-bengali-instrumental.mpeg"
-        preload="metadata"
-        onEnded={publishMusicState}
-      />
+        <div className="hero-image hero-color" />
+      </RevealImage>
+      <PortfolioAudio />
       <button
         className="kolkata-mark"
         onClick={() => window.dispatchEvent(new Event('open-kolkata'))}
@@ -393,9 +162,6 @@ function ReferenceHero() {
           INDIA
         </small>
       </button>
-      <div className="reveal-hint">
-        <span /> Move to reveal colour
-      </div>
       {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users must be able to scroll this region in reduced-motion mode. */}
       <section className="hero-skills-marquee" aria-label="Design capabilities" tabIndex={0}>
         <div className="hero-skills-track">
@@ -735,28 +501,6 @@ function SelectedWorkIntro() {
 
 function VentryProject() {
   const section = useRef<HTMLElement>(null);
-  const artwork = useRef<HTMLDivElement>(null);
-  const frame = useRef<number | null>(null);
-  const target = useRef({ x: 50, y: 50 });
-  const current = useRef({ x: 50, y: 50 });
-  const active = useRef(false);
-  const [tapped, setTapped] = useState(false);
-
-  useEffect(
-    () => () => {
-      if (frame.current !== null) cancelAnimationFrame(frame.current);
-    },
-    [],
-  );
-
-  const animateReveal = () => {
-    current.current.x += (target.current.x - current.current.x) * 0.16;
-    current.current.y += (target.current.y - current.current.y) * 0.16;
-    artwork.current?.style.setProperty('--paint-x', `${current.current.x}%`);
-    artwork.current?.style.setProperty('--paint-y', `${current.current.y}%`);
-    if (active.current) frame.current = requestAnimationFrame(animateReveal);
-  };
-
   return (
     <section
       ref={section}
@@ -767,38 +511,7 @@ function VentryProject() {
       <link rel="preload" as="image" href="/ventry-artwork-mono.jpg" />
       <link rel="preload" as="image" href="/ventry-artwork-colour.jpg" />
       <div className="ventry-editorial">
-        <div
-          ref={artwork}
-          className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
-          onPointerEnter={(event) => {
-            if (event.pointerType === 'touch') return;
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-              artwork.current?.classList.add('is-hovered');
-              return;
-            }
-            active.current = true;
-            artwork.current?.classList.add('is-hovered');
-            if (frame.current !== null) cancelAnimationFrame(frame.current);
-            frame.current = requestAnimationFrame(animateReveal);
-          }}
-          onPointerMove={(event) => {
-            if (event.pointerType === 'touch') return;
-            const bounds = event.currentTarget.getBoundingClientRect();
-            target.current = {
-              x: ((event.clientX - bounds.left) / bounds.width) * 100,
-              y: ((event.clientY - bounds.top) / bounds.height) * 100,
-            };
-          }}
-          onPointerLeave={() => {
-            active.current = false;
-            artwork.current?.classList.remove('is-hovered');
-            if (frame.current !== null) cancelAnimationFrame(frame.current);
-            frame.current = null;
-          }}
-          onPointerDown={(event) => {
-            if (event.pointerType === 'touch') setTapped((value) => !value);
-          }}
-        >
+        <RevealImage className="ventry-artwork" instructionId={'ventry'}>
           <div className="project-image-entrance">
             {/* Paired reveal layers need matching native image geometry. */}
             {/* oxlint-disable-next-line next/no-img-element */}
@@ -818,7 +531,7 @@ function VentryProject() {
               height="904"
             />
           </div>
-        </div>
+        </RevealImage>
         <div className="ventry-right project-copy">
           <p className="ventry-label">01 — PRODUCT SYSTEM</p>
           <h2 id="ventry-title">VENTRY</h2>
@@ -889,28 +602,6 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
     ? '/images/projects/sitstick/sitstick-color.png'
     : '/tavvro-colour.png';
   const section = useRef<HTMLElement>(null);
-  const artwork = useRef<HTMLDivElement>(null);
-  const frame = useRef<number | null>(null);
-  const target = useRef({ x: 50, y: 50 });
-  const current = useRef({ x: 50, y: 50 });
-  const active = useRef(false);
-  const [tapped, setTapped] = useState(false);
-
-  useEffect(
-    () => () => {
-      if (frame.current !== null) cancelAnimationFrame(frame.current);
-    },
-    [],
-  );
-
-  const animateReveal = () => {
-    current.current.x += (target.current.x - current.current.x) * 0.16;
-    current.current.y += (target.current.y - current.current.y) * 0.16;
-    artwork.current?.style.setProperty('--paint-x', `${current.current.x}%`);
-    artwork.current?.style.setProperty('--paint-y', `${current.current.y}%`);
-    if (active.current) frame.current = requestAnimationFrame(animateReveal);
-  };
-
   return (
     <section
       ref={section}
@@ -921,48 +612,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
       {!mobility && <link rel="preload" as="image" href={monoImage} />}
       <link rel="preload" as="image" href={colourImage} />
       <div className="ventry-editorial">
-        <div
-          ref={artwork}
-          className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
-          onPointerEnter={(event) => {
-            if (event.pointerType === 'touch' || (mobility && window.matchMedia('(hover: none), (pointer: coarse)').matches)) return;
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-              artwork.current?.classList.add('is-hovered');
-              return;
-            }
-            if (mobility) {
-              const bounds = event.currentTarget.getBoundingClientRect();
-              target.current = {
-                x: ((event.clientX - bounds.left) / bounds.width) * 100,
-                y: ((event.clientY - bounds.top) / bounds.height) * 100,
-              };
-            }
-            active.current = true;
-            artwork.current?.classList.add('is-hovered');
-            if (frame.current !== null) cancelAnimationFrame(frame.current);
-            frame.current = requestAnimationFrame(animateReveal);
-          }}
-          onPointerMove={(event) => {
-            if (event.pointerType === 'touch' || (mobility && window.matchMedia('(hover: none), (pointer: coarse)').matches)) return;
-            const bounds = event.currentTarget.getBoundingClientRect();
-            target.current = {
-              x: ((event.clientX - bounds.left) / bounds.width) * 100,
-              y: ((event.clientY - bounds.top) / bounds.height) * 100,
-            };
-          }}
-          onPointerLeave={() => {
-            active.current = false;
-            artwork.current?.classList.remove('is-hovered');
-            if (frame.current !== null) cancelAnimationFrame(frame.current);
-            frame.current = null;
-          }}
-          onPointerUp={() => {
-            if (mobility && window.matchMedia('(hover: none), (pointer: coarse)').matches) setTapped((value) => !value);
-          }}
-          onPointerDown={(event) => {
-            if (!mobility && event.pointerType === 'touch') setTapped((value) => !value);
-          }}
-        >
+        <RevealImage className="ventry-artwork" instructionId={project.id}>
           <div className={`project-image-entrance ${mobility ? 'sitstick-artwork' : ''}`}>
             {mobility ? (
               <>
@@ -997,7 +647,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
               </>
             )}
           </div>
-        </div>
+        </RevealImage>
         <div className="ventry-right project-copy">
           <p className="ventry-label">{project.label}</p>
           <h2 id={`${project.id}-title`}>{project.name}</h2>

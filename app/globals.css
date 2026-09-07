@@ -4315,3 +4315,95 @@ h1, h2, h3, h4, h5, h6,
   .availability-dot__core, .availability-dot__pulse { animation: none; }
   .availability-dot__pulse { opacity: 0; }
 }
+
+/* Guidance overlays never participate in image or section sizing. */
+.guided-image { touch-action: pan-y; }
+.reference-hero .hero-images.guided-image { cursor: pointer; }
+.guided-image:focus-visible { outline: 1px solid var(--orange); outline-offset: -2px; }
+.guided-image .image-guidance {
+  position: absolute;
+  z-index: 9;
+  inset: auto 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+}
+.image-instruction, .music-instruction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  background: rgb(255 255 255 / 90%);
+  color: var(--ink);
+  font: 500 clamp(10px, .65vw, 12px)/1.3 var(--font-body);
+  letter-spacing: .09em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.image-instruction[data-visible='true'], .music-instruction[data-visible='true'] { opacity: 1; transform: translateY(0); }
+.instruction-cursor, .instruction-dot {
+  position: relative;
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: var(--orange);
+  flex: 0 0 auto;
+}
+.instruction-cursor::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 1px solid var(--orange);
+  animation: reveal-cursor-pulse 2.4s ease-out infinite;
+}
+@keyframes reveal-cursor-pulse {
+  0% { opacity: .6; transform: scale(.7); }
+  75%, 100% { opacity: 0; transform: scale(1.5); }
+}
+.instruction-touch { display: none; }
+.reference-hero .guided-image .hero-color,
+.guided-image .ventry-colour,
+.guided-image .sitstick-image--color {
+  mask-image: none;
+  -webkit-mask-image: none;
+  opacity: 0;
+  transition: opacity .55s ease;
+  will-change: opacity;
+}
+.reference-hero .guided-image[data-colour='true'] .hero-color,
+.guided-image[data-colour='true'] .ventry-colour,
+.guided-image[data-colour='true'] .sitstick-image--color { opacity: 1; }
+@media (max-width: 1023px), (hover: none), (pointer: coarse) {
+  .instruction-desktop { display: none; }
+  .instruction-touch { display: inline; }
+}
+/* The existing mobile hero copy sits over the image: pass empty space through. */
+@media (max-width: 900px) {
+  .reference-hero .hero-left { pointer-events: none; }
+  .reference-hero .hero-copy :is(a, button) { pointer-events: auto; }
+  .reference-hero .hero-images.guided-image { opacity: 1; }
+  .reference-hero .guided-image .hero-mono { opacity: .45; }
+  .reference-hero .guided-image[data-colour='true'] .hero-color { opacity: .45; }
+  .guided-image .image-guidance { bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .image-instruction, .music-instruction,
+  .reference-hero .guided-image .hero-color,
+  .guided-image .ventry-colour, .guided-image .sitstick-image--color { transition: none; transform: none; }
+  .instruction-cursor::after { animation: none; opacity: .35; }
+}
+/* Keep hero guidance above the existing skills strip, inside the image. */
+.reference-hero .guided-image .image-guidance { bottom: calc(94px + 1.2% + 16px); }
+@media (max-width: 900px) {
+  .reference-hero .guided-image .image-guidance { bottom: 94px; }
+}
+@media (max-width: 580px) {
+  .reference-hero .guided-image .image-guidance { bottom: 84px; }
+}
