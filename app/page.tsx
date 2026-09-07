@@ -90,6 +90,7 @@ function Overlays() {
     </Dialog>
   );
 }
+const HERO_WORD_DURATION_MS = 4200;
 const animatedWords = [
   { text: 'impact.', color: '#f04a13' },
   { text: 'meaning.', color: '#2f8f62' },
@@ -102,8 +103,13 @@ function ReferenceHero() {
   const hero = useRef<HTMLElement>(null);
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const timer = window.setInterval(() => setWordIndex(index => (index + 1) % animatedWords.length), 2100);
-    return () => window.clearInterval(timer);
+    const timer = window.setTimeout(() => setWordIndex(index => (index + 1) % animatedWords.length), HERO_WORD_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [wordIndex]);
+  useEffect(() => {
+    const restart = () => setWordIndex(index => (index + 1) % animatedWords.length);
+    window.addEventListener('hero-text-restart', restart);
+    return () => window.removeEventListener('hero-text-restart', restart);
   }, []);
   useEffect(() => {
     window.dispatchEvent(new Event('hero-word-change'));
@@ -129,7 +135,7 @@ function ReferenceHero() {
             <em className="animated-impact" aria-hidden="true">
               <span
                 key={animatedWords[wordIndex].text}
-                style={{ color: animatedWords[wordIndex].color }}
+                style={{ color: animatedWords[wordIndex].color, animationDuration: `${HERO_WORD_DURATION_MS}ms` }}
               >
                 {animatedWords[wordIndex].text}
               </span>

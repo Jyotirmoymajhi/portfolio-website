@@ -45,6 +45,7 @@ export function HeroImage() {
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const change = (revealed: boolean) => {
     setActive(revealed);
+    window.dispatchEvent(new CustomEvent('hero-music', { detail: { playing: revealed } }));
   };
   return (
     // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Retain the original image container with its block-level layers and geometry.

@@ -1440,12 +1440,12 @@ button {
     transform: none;
     clip-path: inset(0 100% 0 0);
   }
-  26% {
+  12% {
     opacity: 1;
     transform: none;
     clip-path: inset(0 0 0 0);
   }
-  72% {
+  90% {
     opacity: 1;
     transform: none;
     clip-path: inset(0 0 0 0);

@@ -90,53 +90,76 @@ export function PortfolioAudio() {
     const player = audio.current;
     if (!player) return;
     let enabled = false;
+    let imageActive = false;
+    let imageMuted = false;
     let disposed = false;
     let requestId = 0;
     let heroVisible = true;
     player.volume = .14;
     const publish = () => window.dispatchEvent(new CustomEvent('music-state', {
-      detail: { playing: enabled, volume: player.volume },
+      detail: { playing: imageActive ? !player.paused : enabled, volume: player.volume },
     }));
     const stop = () => { ++requestId; player.pause(); player.currentTime = 0; };
-    const playCue = async () => {
-      if (!enabled || !heroVisible || document.hidden) return;
+    const play = async (background: boolean) => {
+      if (!heroVisible || document.hidden || (background ? imageMuted : !enabled || imageActive)) return;
       stop();
       const id = requestId;
+      const source = background ? '/jyoti-bengali-instrumental.mpeg' : '/hero-word-change.mp3';
+      if (player.getAttribute('src') !== source) player.src = source;
+      player.loop = background;
       try {
         await player.play();
-        if (disposed || !enabled) { player.pause(); return; }
         if (id !== requestId) return;
+        if (disposed) { player.pause(); return; }
         remember('portfolio-music-activated');
         window.dispatchEvent(new Event('music-activated'));
+        publish();
       } catch {
-        if (id === requestId) { enabled = false; publish(); }
+        if (id === requestId) { if (!background) enabled = false; publish(); }
       }
     };
+    const restartText = () => window.dispatchEvent(new Event('hero-text-restart'));
     const toggle = () => {
-      enabled = !enabled;
+      if (imageActive) {
+        imageMuted = !imageMuted;
+        if (imageMuted) stop(); else void play(true);
+      } else {
+        enabled = !enabled;
+        if (enabled) restartText(); else stop();
+      }
       publish();
-      if (enabled) void playCue();
-      else stop();
     };
-    const wordChanged = () => { void playCue(); };
-    const visibility = () => { if (document.hidden) stop(); };
+    const imageChanged = (event: Event) => {
+      const next = (event as CustomEvent<{ playing: boolean }>).detail.playing;
+      if (next === imageActive) return;
+      imageActive = next;
+      imageMuted = false;
+      stop();
+      if (imageActive) void play(true);
+      else if (enabled) restartText();
+      publish();
+    };
+    const wordChanged = () => { if (!imageActive) void play(false); };
+    const visibility = () => { if (document.hidden) { stop(); publish(); } };
     const observer = new IntersectionObserver(([entry]) => {
       heroVisible = entry.isIntersecting;
-      if (!heroVisible) stop();
+      if (!heroVisible) { stop(); publish(); }
     });
     const hero = document.getElementById('home');
     if (hero) observer.observe(hero);
     window.addEventListener('toggle-music', toggle);
     window.addEventListener('hero-word-change', wordChanged);
+    window.addEventListener('hero-music', imageChanged);
     document.addEventListener('visibilitychange', visibility);
     return () => {
       disposed = true; stop(); observer.disconnect();
       window.removeEventListener('toggle-music', toggle);
       window.removeEventListener('hero-word-change', wordChanged);
+      window.removeEventListener('hero-music', imageChanged);
       document.removeEventListener('visibilitychange', visibility);
     };
   }, []);
-  // The existing word-change cue plays only after MUSIC is explicitly enabled.
+  // One player switches sources, so image music and word cues cannot overlap.
   // oxlint-disable-next-line jsx-a11y/media-has-caption
   return <audio ref={audio} src="/hero-word-change.mp3" preload="none" />;
 }
