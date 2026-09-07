@@ -4407,3 +4407,39 @@ h1, h2, h3, h4, h5, h6,
 @media (max-width: 580px) {
   .reference-hero .guided-image .image-guidance { bottom: 84px; }
 }
+
+/* Original hero layers and guide; colour changes only through opacity. */
+.reference-hero .hero-hover-image { cursor: pointer; touch-action: pan-y; }
+.reference-hero .hero-hover-image .hero-mono { z-index: 0; }
+.reference-hero .hero-hover-image .hero-color {
+  z-index: 1;
+  mask-image: none;
+  -webkit-mask-image: none;
+  opacity: 0;
+  transition: opacity 700ms ease;
+}
+.reference-hero .hero-hover-image[data-colour='true'] .hero-color { opacity: 1; }
+.reference-hero .hero-hover-image .artwork-cursor {
+  display: block;
+  left: 50%;
+  top: auto;
+  bottom: calc(94px + 1.2% + 20px);
+  transform: translateX(-50%);
+  opacity: .6;
+  transition: opacity 180ms ease;
+}
+.reference-hero .hero-hover-image[data-colour='true'] .artwork-cursor { opacity: 0; }
+.hero-hover-image:focus-visible { outline: 1px solid var(--orange); outline-offset: -2px; }
+@media (max-width: 900px) {
+  .reference-hero .hero-hover-image { opacity: 1; }
+  .reference-hero .hero-hover-image .hero-mono { opacity: .45; }
+  .reference-hero .hero-hover-image[data-colour='true'] .hero-color { opacity: .45; }
+  .reference-hero .hero-hover-image .artwork-cursor { bottom: 98px; }
+}
+@media (max-width: 580px) {
+  .reference-hero .hero-hover-image .artwork-cursor { bottom: 88px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reference-hero .hero-hover-image .hero-color,
+  .reference-hero .hero-hover-image .artwork-cursor { transition: none; }
+}

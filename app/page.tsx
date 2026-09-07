@@ -16,6 +16,7 @@ import {
   Share2,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { HeroImage } from '@/components/hero-image';
 import { RevealImage, PortfolioAudio } from '@/components/reveal-image';
 import { ProjectMotion } from '@/components/project-motion';
 import {
@@ -143,10 +144,7 @@ function ReferenceHero() {
           </a>
         </div>
       </div>
-      <RevealImage className="hero-images" instructionId="hero" hero>
-        <div className="hero-image hero-mono" />
-        <div className="hero-image hero-color" />
-      </RevealImage>
+      <HeroImage />
       <PortfolioAudio />
       <button
         className="kolkata-mark"
@@ -255,23 +253,6 @@ function ReferenceNavbar() {
           </span>
           <small>MUSIC</small>
         </button>
-        <label className="volume-control">
-          <span>Volume</span>
-          <input
-            type="range"
-            min="5"
-            max="50"
-            value={Math.round(music.volume * 100)}
-            onChange={(event) => {
-              const volume = Number(event.target.value) / 100;
-              setMusic((state) => ({ ...state, volume }));
-              window.dispatchEvent(
-                new CustomEvent('set-music-volume', { detail: { volume } }),
-              );
-            }}
-            aria-label="Ambient music volume"
-          />
-        </label>
       </div>
       <a href="#contact" className="availability">
         <span className="availability-dot" aria-hidden="true">

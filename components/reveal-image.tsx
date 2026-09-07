@@ -98,15 +98,24 @@ export function PortfolioAudio() {
     const publish = () => window.dispatchEvent(new CustomEvent('music-state', {
       detail: { playing: !player.paused, volume: player.volume },
     }));
-    const toggle = async () => {
-      requested = !requested;
-      if (!requested) { player.pause(); return; }
+    let requestId = 0;
+    const playback = async (playing: boolean) => {
+      const id = ++requestId;
+      requested = playing;
+      if (!playing) { player.pause(); publish(); return; }
       try {
         await player.play();
         if (disposed || !requested) { player.pause(); return; }
+        if (id !== requestId) return;
         remember('portfolio-music-activated');
         window.dispatchEvent(new Event('music-activated'));
-      } catch { requested = false; publish(); }
+      } catch {
+        if (id === requestId) { requested = false; publish(); }
+      }
+    };
+    const toggle = () => { void playback(!requested); };
+    const heroPlayback = (event: Event) => {
+      void playback((event as CustomEvent<{ playing: boolean }>).detail.playing);
     };
     const volume = (event: Event) => {
       const value = (event as CustomEvent<{ volume: number }>).detail.volume;
@@ -117,11 +126,13 @@ export function PortfolioAudio() {
     };
     player.addEventListener('play', publish);
     player.addEventListener('pause', publish);
+    window.addEventListener('hero-music', heroPlayback);
     window.addEventListener('toggle-music', toggle);
     window.addEventListener('set-music-volume', volume);
     return () => {
       disposed = true; player.pause();
       player.removeEventListener('play', publish); player.removeEventListener('pause', publish);
+      window.removeEventListener('hero-music', heroPlayback);
       window.removeEventListener('toggle-music', toggle); window.removeEventListener('set-music-volume', volume);
     };
   }, []);
