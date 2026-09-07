@@ -4443,3 +4443,17 @@ h1, h2, h3, h4, h5, h6,
   .reference-hero .hero-hover-image .hero-color,
   .reference-hero .hero-hover-image .artwork-cursor { transition: none; }
 }
+
+/* The spotlight masks only the supplied colour image; it never warps pixels. */
+.reference-hero .hero-spotlight-image .hero-color {
+  --spot-radius: clamp(180px, 23vw, 450px);
+  --spot-mask:
+    radial-gradient(ellipse var(--spot-radius) calc(var(--spot-radius) * .94) at var(--spot-x, 50%) var(--spot-y, 46%),
+      #000 0%, #000 35%, #000e 49%, #0008 66%, #0003 82%, transparent 100%),
+    radial-gradient(ellipse calc(var(--spot-radius) * .79) calc(var(--spot-radius) * .88) at calc(var(--spot-x, 50%) + 16px) calc(var(--spot-y, 46%) - 11px),
+      #0005 0%, #0003 48%, transparent 96%);
+  mask-image: var(--spot-mask);
+  -webkit-mask-image: var(--spot-mask);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}

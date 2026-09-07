@@ -89,54 +89,54 @@ export function PortfolioAudio() {
   useEffect(() => {
     const player = audio.current;
     if (!player) return;
-    let requested = false;
+    let enabled = false;
     let disposed = false;
-    try {
-      const saved = Number(sessionStorage.getItem('jyoti-music-volume'));
-      player.volume = saved >= .05 && saved <= .5 ? saved : .14;
-    } catch { player.volume = .14; }
-    const publish = () => window.dispatchEvent(new CustomEvent('music-state', {
-      detail: { playing: !player.paused, volume: player.volume },
-    }));
     let requestId = 0;
-    const playback = async (playing: boolean) => {
-      const id = ++requestId;
-      requested = playing;
-      if (!playing) { player.pause(); publish(); return; }
+    let heroVisible = true;
+    player.volume = .14;
+    const publish = () => window.dispatchEvent(new CustomEvent('music-state', {
+      detail: { playing: enabled, volume: player.volume },
+    }));
+    const stop = () => { ++requestId; player.pause(); player.currentTime = 0; };
+    const playCue = async () => {
+      if (!enabled || !heroVisible || document.hidden) return;
+      stop();
+      const id = requestId;
       try {
         await player.play();
-        if (disposed || !requested) { player.pause(); return; }
+        if (disposed || !enabled) { player.pause(); return; }
         if (id !== requestId) return;
         remember('portfolio-music-activated');
         window.dispatchEvent(new Event('music-activated'));
       } catch {
-        if (id === requestId) { requested = false; publish(); }
+        if (id === requestId) { enabled = false; publish(); }
       }
     };
-    const toggle = () => { void playback(!requested); };
-    const heroPlayback = (event: Event) => {
-      void playback((event as CustomEvent<{ playing: boolean }>).detail.playing);
-    };
-    const volume = (event: Event) => {
-      const value = (event as CustomEvent<{ volume: number }>).detail.volume;
-      if (!Number.isFinite(value)) return;
-      player.volume = Math.max(.05, Math.min(.5, value));
-      try { sessionStorage.setItem('jyoti-music-volume', String(player.volume)); } catch { /* Optional preference. */ }
+    const toggle = () => {
+      enabled = !enabled;
       publish();
+      if (enabled) void playCue();
+      else stop();
     };
-    player.addEventListener('play', publish);
-    player.addEventListener('pause', publish);
-    window.addEventListener('hero-music', heroPlayback);
+    const wordChanged = () => { void playCue(); };
+    const visibility = () => { if (document.hidden) stop(); };
+    const observer = new IntersectionObserver(([entry]) => {
+      heroVisible = entry.isIntersecting;
+      if (!heroVisible) stop();
+    });
+    const hero = document.getElementById('home');
+    if (hero) observer.observe(hero);
     window.addEventListener('toggle-music', toggle);
-    window.addEventListener('set-music-volume', volume);
+    window.addEventListener('hero-word-change', wordChanged);
+    document.addEventListener('visibilitychange', visibility);
     return () => {
-      disposed = true; player.pause();
-      player.removeEventListener('play', publish); player.removeEventListener('pause', publish);
-      window.removeEventListener('hero-music', heroPlayback);
-      window.removeEventListener('toggle-music', toggle); window.removeEventListener('set-music-volume', volume);
+      disposed = true; stop(); observer.disconnect();
+      window.removeEventListener('toggle-music', toggle);
+      window.removeEventListener('hero-word-change', wordChanged);
+      document.removeEventListener('visibilitychange', visibility);
     };
   }, []);
-  // Existing instrumental track, shared by the entire portfolio; never autoplay.
+  // The existing word-change cue plays only after MUSIC is explicitly enabled.
   // oxlint-disable-next-line jsx-a11y/media-has-caption
-  return <audio ref={audio} src="/jyoti-bengali-instrumental.mpeg" preload="none" loop />;
+  return <audio ref={audio} src="/hero-word-change.mp3" preload="none" />;
 }

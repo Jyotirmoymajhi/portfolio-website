@@ -105,6 +105,9 @@ function ReferenceHero() {
     const timer = window.setInterval(() => setWordIndex(index => (index + 1) % animatedWords.length), 2100);
     return () => window.clearInterval(timer);
   }, []);
+  useEffect(() => {
+    window.dispatchEvent(new Event('hero-word-change'));
+  }, [wordIndex]);
   return (
     <section ref={hero} id="home" className="hero reference-hero">
       <div className="hero-left">
