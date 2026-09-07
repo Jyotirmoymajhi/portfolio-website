@@ -347,13 +347,13 @@ test('SitStick crops embedded text without modifying images and reverses through
   await expect(project.locator('.ventry-button')).toHaveCSS('opacity', '1');
   await expect(project.locator('.sitstick-colour-reveal')).toHaveCSS(
     'opacity',
-    '1',
+    '0',
   );
   const images = project.locator('img');
   await expect(images).toHaveCount(2);
   for (const image of await images.all()) {
     await expect(image).toHaveCSS('object-fit', 'contain');
-    await expect(image).toHaveCSS('object-position', '0% 50%');
+    await expect(image).toHaveCSS('object-position', '50% 50%');
     expect(
       await image.evaluate(
         (element) => (element as HTMLImageElement).naturalWidth,
@@ -486,4 +486,70 @@ test('every requested viewport keeps project content bounded and transitions rea
     }
   }
   expect(errors).toEqual([]);
+});
+
+test('all project hover layers reset after scrolling, with stable geometry', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await openPortfolio(page);
+  await page.mouse.move(0, 0);
+  for (const [id, progress] of [['ventry', 0], ['tavvro', 0.9], ['sitstick', 1.9], ['tavvro', 0.9], ['ventry', 0], ['sitstick', 1.9]] as const) {
+    await scrollProject(page, progress);
+    const project = page.locator(`#${id}`);
+    const artwork = project.locator('.ventry-artwork');
+    const colour = artwork.locator('.ventry-colour');
+    await expect(artwork).toHaveCSS('opacity', '1');
+    await expect(artwork).toHaveCSS('filter', /^(none|blur\(0px\))$/);
+    await expect(colour).toHaveCSS('opacity', '0');
+    await expect(artwork.locator('.ventry-mono')).toHaveCSS('opacity', '1');
+    await expect(colour).toHaveCSS('transition-duration', '0.7s');
+    await expect(colour).toHaveCSS('transition-timing-function', 'cubic-bezier(0.22, 1, 0.36, 1)');
+    const before = await artwork.boundingBox();
+    const imageBounds = await artwork.locator('img').evaluateAll(images => images.map(image => {
+      const r = image.getBoundingClientRect(); return [r.x, r.y, r.width, r.height];
+    }));
+    await artwork.hover();
+    await expect(colour).toHaveCSS('opacity', '1');
+    expect(await colour.evaluate(el => getComputedStyle(el).maskImage)).toContain('radial-gradient');
+    expect(await artwork.boundingBox()).toEqual(before);
+    expect(await artwork.locator('img').evaluateAll(images => images.map(image => {
+      const r = image.getBoundingClientRect(); return [r.x, r.y, r.width, r.height];
+    }))).toEqual(imageBounds);
+    if (id === 'sitstick') {
+      expect(imageBounds[0]).toEqual(imageBounds[1]);
+      await page.screenshot({ path: 'work/sitstick-hover.png' });
+    }
+    await page.mouse.move(0, 0);
+    await expect(colour).toHaveCSS('opacity', '0');
+    if (id === 'sitstick') await page.screenshot({ path: 'work/sitstick-default.png' });
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const id of ['ventry', 'tavvro', 'sitstick']) {
+    const artwork = page.locator(`#${id} .ventry-artwork`);
+    const colour = artwork.locator('.ventry-colour');
+    await artwork.scrollIntoViewIfNeeded();
+    await page.keyboard.press('Tab');
+    await page.locator(`#${id} .ventry-button`).focus();
+    await expect(colour).toHaveCSS('opacity', '1');
+    expect(await colour.evaluate(el => parseFloat(getComputedStyle(el).transitionDuration))).toBeLessThan(0.001);
+    await expect(colour).toHaveCSS('mask-image', 'none');
+    await page.locator(`#${id} .ventry-button`).evaluate(el => (el as HTMLElement).blur());
+    await page.mouse.move(0, 0);
+    await expect(colour).toHaveCSS('opacity', '0');
+  }
+  expect(errors).toEqual([]);
+});
+
+test('touch projects stay monochrome on initial scroll', async ({ browser }) => {
+  const context = await browser.newContext({ baseURL: 'http://localhost:3000', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  await openPortfolio(page);
+  for (const id of ['ventry', 'tavvro', 'sitstick']) {
+    const artwork = page.locator(`#${id} .ventry-artwork`);
+    await artwork.scrollIntoViewIfNeeded();
+    await expect(artwork.locator('.project-image-entrance')).toHaveCSS('opacity', '1');
+    await expect(artwork.locator('.ventry-colour')).toHaveCSS('opacity', '0');
+  }
+  await context.close();
 });

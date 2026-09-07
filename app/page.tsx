@@ -867,6 +867,10 @@ function VentryProject() {
           className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
           onPointerEnter={(event) => {
             if (event.pointerType === 'touch') return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+              artwork.current?.classList.add('is-hovered');
+              return;
+            }
             active.current = true;
             artwork.current?.classList.add('is-hovered');
             if (frame.current !== null) cancelAnimationFrame(frame.current);
@@ -1018,6 +1022,10 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
           className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
           onPointerEnter={(event) => {
             if (event.pointerType === 'touch') return;
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+              artwork.current?.classList.add('is-hovered');
+              return;
+            }
             active.current = true;
             artwork.current?.classList.add('is-hovered');
             if (frame.current !== null) cancelAnimationFrame(frame.current);
@@ -1044,21 +1052,25 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
           <div className="project-image-entrance">
             {mobility ? (
               <>
-                <img
-                  className="sitstick-layer"
-                  src={monoImage}
-                  alt={project.alt}
-                  width="1440"
-                  height="904"
-                />
-                <div className="sitstick-colour-reveal" aria-hidden="true">
+                <div className="sitstick-image-source">
                   <img
-                    className="sitstick-layer"
-                    src={colourImage}
-                    alt=""
+                    className="sitstick-layer ventry-mono"
+                    src={monoImage}
+                    alt={project.alt}
                     width="1440"
                     height="904"
                   />
+                </div>
+                <div className="sitstick-colour-reveal ventry-colour" aria-hidden="true">
+                  <div className="sitstick-image-source">
+                    <img
+                      className="sitstick-layer"
+                      src={colourImage}
+                      alt=""
+                      width="1440"
+                      height="904"
+                    />
+                  </div>
                 </div>
               </>
             ) : (

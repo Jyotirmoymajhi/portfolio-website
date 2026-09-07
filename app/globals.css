@@ -2585,7 +2585,7 @@ main:after {
 .ventry-colour {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.38s ease;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   mask-image:
     radial-gradient(
       ellipse 150px 128px at var(--paint-x) var(--paint-y),
@@ -2631,7 +2631,8 @@ main:after {
       transparent 86%
     );
 }
-.ventry-artwork.is-hovered .ventry-colour {
+.ventry-artwork.is-hovered .ventry-colour,
+.ventry-editorial:has(.ventry-button:focus-visible) .ventry-colour {
   opacity: 1;
 }
 .ventry-project-link {
@@ -2666,19 +2667,9 @@ main:after {
   .ventry-colour {
     transition: none;
   }
-  .ventry-artwork.is-hovered .ventry-colour {
-    mask-image: radial-gradient(
-      circle 145px at var(--paint-x) var(--paint-y),
-      #000 0,
-      #000 62%,
-      transparent 100%
-    );
-    -webkit-mask-image: radial-gradient(
-      circle 145px at var(--paint-x) var(--paint-y),
-      #000 0,
-      #000 62%,
-      transparent 100%
-    );
+  .ventry-artwork .ventry-colour {
+    mask-image: none;
+    -webkit-mask-image: none;
   }
 }
 
@@ -4008,18 +3999,6 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   object-fit: contain;
   object-position: center;
 }
-.sitstick-colour-reveal {
-  --sitstick-colour-opacity: 0;
-  opacity: var(--sitstick-colour-opacity);
-  transition: opacity 0.4s ease;
-}
-.sitstick-project .is-hovered .sitstick-colour-reveal,
-.sitstick-project .is-tapped .sitstick-colour-reveal {
-  opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  .sitstick-colour-reveal { transition: none; }
-}
 .projects-motion .reference-project .ventry-button {
   gap: 10px;
 }
@@ -4173,13 +4152,12 @@ section[id], footer[id] { scroll-margin-top: 90px; }
 .projects-motion .ventry-button { width: fit-content; min-height: 48px; height: auto; padding: 15px 19px; }
 /* Preserve the supplied 1440 x 904 images; show only the left 75%. */
 .sitstick-project .project-image-entrance { overflow: hidden; }
-.projects-motion .sitstick-layer {
+.projects-motion .sitstick-image-source {
+  position: absolute;
   inset: 0 auto 0 0;
   width: 133.333333%;
   max-width: none;
   height: 100%;
-  object-fit: contain;
-  object-position: left center;
 }
 @media (min-width: 1024px) and (max-width: 1439px) {
   .projects-motion .ventry-editorial { grid-template-columns: minmax(0, 66fr) minmax(0, 34fr); }

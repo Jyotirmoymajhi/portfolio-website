@@ -168,15 +168,6 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
               },
               0.16,
             );
-            const colourReveal = project.querySelector(
-              '.sitstick-colour-reveal',
-            );
-            if (colourReveal)
-              intro.to(
-                colourReveal,
-                { '--sitstick-colour-opacity': 1, duration: 0.7 },
-                0.25,
-              );
             entrances.push({ element: project, timeline: intro });
             ScrollTrigger.create({
               trigger: project,
@@ -277,15 +268,6 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
                   index + 0.58,
                 )
                 .to({}, { duration: 0.18 }, index + 0.82);
-              const colourReveal = incoming.querySelector(
-                '.sitstick-colour-reveal',
-              );
-              if (colourReveal)
-                transition.to(
-                  colourReveal,
-                  { '--sitstick-colour-opacity': 1, duration: 0.27 },
-                  index + 0.55,
-                );
             });
             syncAccess(transition.progress());
 
