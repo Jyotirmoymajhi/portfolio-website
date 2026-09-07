@@ -336,7 +336,7 @@ function ReferenceHero() {
             transforming ideas into meaningful products, visuals and memorable
             experiences.
           </p>
-          <a className="primary-button resume-button" href="#contact">
+          <a className="primary-button resume-button portfolio-button" href="#contact">
             <span className="resume-label">
               Get in touch <ArrowUpRight size={17} />
             </span>
@@ -824,13 +824,12 @@ function VentryProject() {
             prototyping.
           </p>
           <a
-            className="ventry-button"
+            className="ventry-button resume-button portfolio-button"
             href="https://www.behance.net/gallery/243632661/Ventry-An-Omnichannel-UX-Case-Study"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span>View Project</span>
-            <i>↗</i>
+            <span className="resume-label">View Project <ArrowUpRight size={17} /></span>
           </a>
         </div>
       </div>
@@ -987,13 +986,12 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
           <p className="ventry-description">{project.description}</p>
           <p className="ventry-support">{project.process}</p>
           <a
-            className="ventry-button"
+            className="ventry-button resume-button portfolio-button"
             href={mobility ? 'https://www.behance.net/gallery/248914979/SitStick-Redefining-Elderly-Mobility-Product-Design' : colourImage}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span>{mobility ? 'View Project' : 'View Project Preview'}</span>
-            <i>↗</i>
+            <span className="resume-label">View Project <ArrowUpRight size={17} /></span>
           </a>
         </div>
       </div>

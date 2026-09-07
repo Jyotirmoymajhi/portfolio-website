@@ -4178,3 +4178,58 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   .projects-motion .ventry-label, .projects-motion .ventry-categories { font-size: 14px; }
   .projects-motion :is(.ventry-description, .ventry-support) { font-size: 17px; }
 }
+
+/* Shared hero and project call-to-action appearance. */
+:is(.reference-hero, .projects-motion .reference-project) .portfolio-button {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 273px;
+  max-width: 100%;
+  min-width: 0;
+  height: 75px;
+  padding: 0 28px;
+  overflow: visible;
+  background: var(--ink);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: normal;
+  text-decoration: none;
+  cursor: pointer;
+  transform: none !important;
+  transition: background-color 0.22s ease, color 0.22s ease;
+}
+:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:hover,
+:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:focus-visible {
+  background: #efeee8;
+  color: #202124;
+  outline: none;
+}
+:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:before {
+  transform: none;
+}
+:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset: -6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background:
+    linear-gradient(#202124, #202124) left top/15px 1px no-repeat,
+    linear-gradient(#202124, #202124) left top/1px 15px no-repeat,
+    linear-gradient(#202124, #202124) right top/15px 1px no-repeat,
+    linear-gradient(#202124, #202124) right top/1px 15px no-repeat,
+    linear-gradient(#202124, #202124) left bottom/15px 1px no-repeat,
+    linear-gradient(#202124, #202124) left bottom/1px 15px no-repeat,
+    linear-gradient(#202124, #202124) right bottom/15px 1px no-repeat,
+    linear-gradient(#202124, #202124) right bottom/1px 15px no-repeat;
+}
+:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:hover:before,
+:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:focus-visible:before {
+  opacity: 1;
+}
