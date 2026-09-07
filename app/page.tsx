@@ -212,7 +212,7 @@ function ReferenceHero() {
 }
 function ReferenceNavbar() {
   const [open, setOpen] = useState(false);
-  const [music, setMusic] = useState({ playing: false, volume: 0.14 });
+  const [music, setMusic] = useState({ playing: false, volume: 1 });
   useEffect(() => {
     const update = (event: Event) =>
       setMusic((event as CustomEvent<typeof music>).detail);
@@ -262,6 +262,19 @@ function ReferenceNavbar() {
           </span>
           <small>MUSIC</small>
         </button>
+        <label className="music-volume-inline">
+          <input type="range" min="0" max="100" step="1"
+            aria-label="Music volume"
+            aria-valuetext={Math.round(music.volume * 100) + '%'}
+            value={Math.round(music.volume * 100)}
+            onChange={(event) => {
+              const volume = Number(event.target.value) / 100;
+              setMusic(state => ({ ...state, volume }));
+              window.dispatchEvent(new CustomEvent('set-music-volume', { detail: { volume } }));
+            }}
+          />
+          <output aria-hidden="true">{Math.round(music.volume * 100)}%</output>
+        </label>
       </div>
       <a href="#contact" className="availability">
         <span className="availability-dot" aria-hidden="true">

@@ -89,13 +89,13 @@ export function PortfolioAudio() {
   useEffect(() => {
     const player = audio.current;
     if (!player) return;
-    let enabled = false;
+    let enabled = true;
     let imageActive = false;
     let imageMuted = false;
     let disposed = false;
     let requestId = 0;
     let heroVisible = true;
-    player.volume = .14;
+    player.volume = 1;
     const publish = () => window.dispatchEvent(new CustomEvent('music-state', {
       detail: { playing: imageActive ? !player.paused : enabled, volume: player.volume },
     }));
@@ -139,6 +139,12 @@ export function PortfolioAudio() {
       else if (enabled) restartText();
       publish();
     };
+    const changeVolume = (event: Event) => {
+      const volume = (event as CustomEvent<{ volume: number }>).detail.volume;
+      if (!Number.isFinite(volume)) return;
+      player.volume = Math.max(0, Math.min(1, volume));
+      publish();
+    };
     const wordChanged = () => { if (!imageActive) void play(false); };
     const visibility = () => { if (document.hidden) { stop(); publish(); } };
     const observer = new IntersectionObserver(([entry]) => {
@@ -147,12 +153,16 @@ export function PortfolioAudio() {
     });
     const hero = document.getElementById('home');
     if (hero) observer.observe(hero);
+    window.addEventListener('set-music-volume', changeVolume);
     window.addEventListener('toggle-music', toggle);
     window.addEventListener('hero-word-change', wordChanged);
     window.addEventListener('hero-music', imageChanged);
     document.addEventListener('visibilitychange', visibility);
+    // Attempt once at full volume. Rejection leaves MUSIC ready for a user click.
+    void play(false);
     return () => {
       disposed = true; stop(); observer.disconnect();
+      window.removeEventListener('set-music-volume', changeVolume);
       window.removeEventListener('toggle-music', toggle);
       window.removeEventListener('hero-word-change', wordChanged);
       window.removeEventListener('hero-music', imageChanged);
