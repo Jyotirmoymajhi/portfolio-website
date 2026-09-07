@@ -948,7 +948,38 @@ function VentryProject() {
   );
 }
 
-function TavvroProject() {
+function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
+  const project = mobility
+    ? {
+        id: 'sitstick',
+        name: 'SITSTICK',
+        label: '03 — MOBILITY INNOVATION',
+        categories: ['USER RESEARCH', 'PRODUCT DESIGN', 'PROTOTYPING'],
+        heading: ['Mobility with a', 'moment of rest.'],
+        description:
+          'A walking-support solution that transforms into a portable seat, helping older adults move confidently and rest whenever needed.',
+        process:
+          'Designed through user research, ergonomic exploration and real mobility needs.',
+        alt: 'SITSTICK walking support that transforms into a portable seat, with an older adult resting in a park',
+      }
+    : {
+        id: 'tavvro',
+        name: 'TAVVRO',
+        label: '02 — SERVICE EXPERIENCE',
+        categories: ['UX RESEARCH', 'SERVICE DESIGN', 'MOBILE APP'],
+        heading: ['Campus laundry,', 'simplified.'],
+        description:
+          'An eco-friendly, pay-by-weight laundry service with flexible booking, seamless drop-offs and live tracking built around real student routines.',
+        process:
+          'Designed through research, systems thinking and real operational needs.',
+        alt: 'TAVVRO campus laundry service with a student drop-off counter and live order tracking',
+      };
+  const monoImage = mobility
+    ? '/images/projects/sitstick/sitstick-bw.png'
+    : '/tavvro-mono.png';
+  const colourImage = mobility
+    ? '/images/projects/sitstick/sitstick-color.png'
+    : '/tavvro-colour.png';
   const section = useRef<HTMLElement>(null);
   const artwork = useRef<HTMLDivElement>(null);
   const frame = useRef<number | null>(null);
@@ -975,12 +1006,12 @@ function TavvroProject() {
   return (
     <section
       ref={section}
-      id="tavvro"
-      className="ventry-project tavvro-project is-visible"
-      aria-labelledby="tavvro-title"
+      id={project.id}
+      className={`ventry-project reference-project ${project.id}-project is-visible`}
+      aria-labelledby={`${project.id}-title`}
     >
-      <link rel="preload" as="image" href="/tavvro-mono.png" />
-      <link rel="preload" as="image" href="/tavvro-colour.png" />
+      <link rel="preload" as="image" href={monoImage} />
+      <link rel="preload" as="image" href={colourImage} />
       <div className="ventry-editorial">
         <div
           ref={artwork}
@@ -1011,46 +1042,64 @@ function TavvroProject() {
           }}
         >
           <div className="project-image-entrance">
-            <figure
-              className="ventry-layer ventry-mono tavvro-image"
-              aria-label="TAVVRO campus laundry service with a student drop-off counter and live order tracking"
-              style={{ backgroundImage: 'url(/tavvro-mono.png)' }}
-            />
-            <div
-              className="ventry-layer ventry-colour tavvro-image"
-              aria-hidden="true"
-              style={{ backgroundImage: 'url(/tavvro-colour.png)' }}
-            />
+            {mobility ? (
+              <>
+                <img
+                  className="sitstick-layer"
+                  src={monoImage}
+                  alt={project.alt}
+                  width="1080"
+                  height="904"
+                />
+                <div className="sitstick-colour-reveal" aria-hidden="true">
+                  <img
+                    className="sitstick-layer"
+                    src={colourImage}
+                    alt=""
+                    width="1080"
+                    height="904"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <figure
+                  className="ventry-layer ventry-mono reference-project-image"
+                  aria-label={project.alt}
+                  style={{ backgroundImage: `url(/${project.id}-mono.png)` }}
+                />
+                <div
+                  className="ventry-layer ventry-colour reference-project-image"
+                  aria-hidden="true"
+                  style={{ backgroundImage: `url(/${project.id}-colour.png)` }}
+                />
+              </>
+            )}
           </div>
         </div>
         <div className="ventry-right">
-          <p className="ventry-label">02 — SERVICE EXPERIENCE</p>
-          <h2 id="tavvro-title">TAVVRO</h2>
+          <p className="ventry-label">{project.label}</p>
+          <h2 id={`${project.id}-title`}>{project.name}</h2>
           <p className="ventry-categories">
-            <span>UX RESEARCH</span>
+            <span>{project.categories[0]}</span>
             <i>•</i>
-            <span>SERVICE DESIGN</span>
+            <span>{project.categories[1]}</span>
             <i>•</i>
-            <span>MOBILE APP</span>
+            <span>{project.categories[2]}</span>
           </p>
           <h3>
-            <span>Campus laundry,</span>
-            <span>simplified.</span>
+            <span>{project.heading[0]}</span>
+            <span>{project.heading[1]}</span>
           </h3>
-          <p className="ventry-description">
-            An eco-friendly, pay-by-weight laundry service with flexible booking,
-            seamless drop-offs and live tracking built around real student routines.
-          </p>
-          <p className="ventry-support">
-            Designed through research, systems thinking and real operational needs.
-          </p>
+          <p className="ventry-description">{project.description}</p>
+          <p className="ventry-support">{project.process}</p>
           <a
             className="ventry-button"
-            href="/tavvro-colour.png"
+            href={mobility ? 'https://www.behance.net/gallery/248914979/SitStick-Redefining-Elderly-Mobility-Product-Design' : colourImage}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span>View Project Preview</span>
+            <span>{mobility ? 'View Project' : 'View Project Preview'}</span>
             <i>↗</i>
           </a>
         </div>
@@ -1070,7 +1119,8 @@ export default function Home() {
         <SelectedWorkIntro />
         <ProjectMotion>
           <VentryProject />
-          <TavvroProject />
+          <IllustratedProject />
+          <IllustratedProject mobility />
         </ProjectMotion>
         <About />
         <Experience />

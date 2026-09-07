@@ -159,6 +159,15 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
               },
               0.16,
             );
+            const colourReveal = project.querySelector(
+              '.sitstick-colour-reveal',
+            );
+            if (colourReveal)
+              intro.to(
+                colourReveal,
+                { '--sitstick-colour-opacity': 1, duration: 0.7 },
+                0.25,
+              );
             entrances.push({ element: project, timeline: intro });
             ScrollTrigger.create({
               trigger: project,
@@ -177,21 +186,26 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
           });
 
           if (desktop) {
-            const [ventry, tavvro] = projects;
-            const ventryImage = ventry.querySelector('.ventry-artwork');
-            const tavvroImage = tavvro.querySelector('.ventry-artwork');
-            const tavvroContent = tavvro.querySelectorAll(contentSelector);
-            gsap.set(tavvroImage, {
-              opacity: 0,
-              filter: 'blur(14px)',
-              scale: 1.04,
-              y: 35,
-              '--watercolor-reveal': '0%',
+            const transitionCount = projects.length - 1;
+            projects.slice(1).forEach((project) => {
+              gsap.set(project.querySelector('.ventry-artwork'), {
+                opacity: 0,
+                filter: 'blur(14px)',
+                scale: 1.04,
+                y: 35,
+                '--watercolor-reveal': '0%',
+              });
+              gsap.set(project.querySelectorAll(contentSelector), {
+                autoAlpha: 0,
+                y: 20,
+              });
             });
-            gsap.set(tavvroContent, { autoAlpha: 0, y: 20 });
             let activeProject = -1;
             const syncAccess = (progress: number) => {
-              const next = progress < 0.52 ? 0 : 1;
+              const next = Math.min(
+                transitionCount,
+                Math.floor(progress * transitionCount + 0.48),
+              );
               if (next === activeProject) return;
               activeProject = next;
               projects.forEach((project, index) => {
@@ -209,60 +223,72 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
                 id: 'portfolio-project-transition',
                 trigger: stage,
                 start: () => `top top+=${navHeight()}`,
-                end: () => `+=${window.innerHeight * 1.8}`,
+                end: () => `+=${window.innerHeight * 1.8 * transitionCount}`,
                 pin: true,
                 scrub: 0.45,
                 anticipatePin: 1,
                 invalidateOnRefresh: true,
               },
             });
-            // One normalized 0–1 timeline; overlap prevents an empty paper frame.
-            transition
-              .to(
-                ventry.querySelector('.ventry-right'),
-                { autoAlpha: 0, y: -24, duration: 0.27 },
-                0.15,
-              )
-              .to(
-                ventryImage,
-                {
-                  opacity: 0,
-                  filter: 'blur(12px)',
-                  scale: 0.97,
-                  y: -30,
-                  duration: 0.37,
-                },
-                0.25,
-              )
-              .to(
-                tavvroImage,
-                {
-                  opacity: 1,
-                  filter: 'blur(0px)',
-                  scale: 1,
-                  y: 0,
-                  '--watercolor-reveal': '160%',
-                  duration: 0.32,
-                },
-                0.38,
-              )
-              .to(
-                tavvroContent,
-                { autoAlpha: 1, y: 0, duration: 0.12, stagger: 0.02 },
-                0.58,
-              )
-              .to({}, { duration: 0.18 }, 0.82);
+            // Each adjacent pair gets the same one-unit timeline and scroll distance.
+            projects.slice(1).forEach((incoming, index) => {
+              const outgoing = projects[index];
+              transition
+                .to(
+                  outgoing.querySelector('.ventry-right'),
+                  { autoAlpha: 0, y: -24, duration: 0.27 },
+                  index + 0.15,
+                )
+                .to(
+                  outgoing.querySelector('.ventry-artwork'),
+                  {
+                    opacity: 0,
+                    filter: 'blur(12px)',
+                    scale: 0.97,
+                    y: -30,
+                    duration: 0.37,
+                  },
+                  index + 0.25,
+                )
+                .to(
+                  incoming.querySelector('.ventry-artwork'),
+                  {
+                    opacity: 1,
+                    filter: 'blur(0px)',
+                    scale: 1,
+                    y: 0,
+                    '--watercolor-reveal': '160%',
+                    duration: 0.32,
+                  },
+                  index + 0.38,
+                )
+                .to(
+                  incoming.querySelectorAll(contentSelector),
+                  { autoAlpha: 1, y: 0, duration: 0.12, stagger: 0.02 },
+                  index + 0.58,
+                )
+                .to({}, { duration: 0.18 }, index + 0.82);
+              const colourReveal = incoming.querySelector(
+                '.sitstick-colour-reveal',
+              );
+              if (colourReveal)
+                transition.to(
+                  colourReveal,
+                  { '--sitstick-colour-opacity': 1, duration: 0.27 },
+                  index + 0.55,
+                );
+            });
             syncAccess(transition.progress());
 
             // Preserve direct project anchors despite their shared pinned stage.
             const followHash = () => {
               const trigger = transition.scrollTrigger;
-              if (
-                !trigger ||
-                !['#ventry', '#tavvro'].includes(window.location.hash)
-              )
-                return;
-              const progress = window.location.hash === '#tavvro' ? 0.9 : 0;
+              const index = projects.findIndex(
+                (project) => `#${project.id}` === window.location.hash,
+              );
+              if (!trigger || index < 0) return;
+              const progress =
+                index === 0 ? 0 : (index - 1 + 0.9) / transitionCount;
               window.scrollTo({
                 top: trigger.start + (trigger.end - trigger.start) * progress,
                 behavior: 'instant',

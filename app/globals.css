@@ -3967,13 +3967,13 @@ main:after {
 /* Keep anchor destinations clear of the fixed navigation. */
 section[id], footer[id] { scroll-margin-top: 90px; }
 
-/* Project 02 displays the illustration area of the paired references. */
-.tavvro-project .ventry-artwork {
+/* Illustration areas from the paired project references. */
+.reference-project .ventry-artwork {
   align-self: center;
   height: auto;
   aspect-ratio: 1080 / 904;
 }
-.tavvro-project .tavvro-image {
+.reference-project .reference-project-image {
   inset: 0;
   width: 100%;
   height: 100%;
@@ -3982,9 +3982,9 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   background-position: left center;
   background-repeat: no-repeat;
 }
-.tavvro-project .ventry-right h3 { color: #0866ff; }
+.reference-project .ventry-right h3 { color: #0866ff; }
 
-.tavvro-project .tavvro-image { margin: 0; }
+.reference-project .reference-project-image { margin: 0; }
 
 /* Progressive enhancement: projects remain readable without animation JS. */
 .projects-motion .ventry-project :is(.ventry-artwork, .ventry-right > *, .ventry-categories > *, .ventry-right h3 span) {
@@ -3997,7 +3997,30 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   position: absolute;
   inset: 0;
 }
-.projects-motion .tavvro-project .ventry-button {
+.sitstick-layer,
+.sitstick-colour-reveal {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sitstick-layer {
+  object-fit: contain;
+  object-position: center;
+}
+.sitstick-colour-reveal {
+  --sitstick-colour-opacity: 0;
+  opacity: var(--sitstick-colour-opacity);
+  transition: opacity 0.4s ease;
+}
+.sitstick-project .is-hovered .sitstick-colour-reveal,
+.sitstick-project .is-tapped .sitstick-colour-reveal {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sitstick-colour-reveal { transition: none; }
+}
+.projects-motion .reference-project .ventry-button {
   gap: 10px;
 }
 .projects-motion {
@@ -4073,7 +4096,7 @@ section[id], footer[id] { scroll-margin-top: 90px; }
     height: 100%;
     min-height: 0;
   }
-  .projects-motion.is-pinned .tavvro-project .ventry-artwork {
+  .projects-motion.is-pinned .reference-project .ventry-artwork {
     --watercolor-reveal: 160%;
     max-width: calc((100svh - var(--project-nav-height, 92px)) * 1080 / 904);
     mask-image: radial-gradient(ellipse at 48% 48%, #000 0%, #000 calc(var(--watercolor-reveal) * 0.65), transparent var(--watercolor-reveal));

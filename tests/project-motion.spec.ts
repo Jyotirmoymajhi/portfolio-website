@@ -115,10 +115,9 @@ test('loader counts, releases scroll, refreshes, and desktop scrub reverses', as
           ),
         )
         .toBeGreaterThan(0.3);
-      const opacity = await page
+      await expect.poll(() => page
         .locator('#ventry .ventry-artwork')
-        .evaluate((el) => Number(getComputedStyle(el).opacity));
-      expect(opacity).toBeGreaterThan(0.1);
+        .evaluate((el) => Number(getComputedStyle(el).opacity))).toBeGreaterThan(0.1);
     }
   }
   await expect(page.locator('.project-loader')).toHaveAttribute(
@@ -154,6 +153,7 @@ test('desktop/tablet buttons fit and resize removes duplicate pins', async ({
     for (const [id, progress] of [
       ['ventry', 0],
       ['tavvro', 0.9],
+      ['sitstick', 1.9],
     ] as const) {
       await scrollProject(page, progress);
       await expect(page.locator(`#${id} .ventry-button`)).toHaveCSS(
@@ -182,7 +182,7 @@ test('desktop/tablet buttons fit and resize removes duplicate pins', async ({
   await expect(page.locator('.pin-spacer')).toHaveCount(1);
 });
 
-test('mobile is image-first, scrollable, and reveals both project buttons', async ({
+test('mobile is image-first, scrollable, and reveals all project buttons', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -190,7 +190,7 @@ test('mobile is image-first, scrollable, and reveals both project buttons', asyn
   for (const width of [390, 360, 767]) {
     await page.setViewportSize({ width, height: 844 });
     await expect(page.locator('.pin-spacer')).toHaveCount(0);
-    for (const id of ['ventry', 'tavvro']) {
+    for (const id of ['ventry', 'tavvro', 'sitstick']) {
       const project = page.locator(`#${id}`);
       await project.locator('.ventry-artwork').scrollIntoViewIfNeeded();
       await expect(project.locator('.project-image-entrance')).toHaveCSS(
@@ -206,9 +206,13 @@ test('mobile is image-first, scrollable, and reveals both project buttons', asyn
         (await project.locator('.ventry-button').boundingBox())!.height,
       ).toBeGreaterThanOrEqual(44);
       const button = (await project.locator('.ventry-button').boundingBox())!;
-      const label = (await project.locator('.ventry-button span').boundingBox())!;
+      const label = (await project
+        .locator('.ventry-button span')
+        .boundingBox())!;
       expect(label.y).toBeGreaterThanOrEqual(button.y);
-      expect(label.y + label.height).toBeLessThanOrEqual(button.y + button.height);
+      expect(label.y + label.height).toBeLessThanOrEqual(
+        button.y + button.height,
+      );
     }
     expect(
       await page.evaluate(
@@ -225,7 +229,7 @@ test('reduced motion skips loading and pinning, including live preference change
   await openPortfolio(page);
   await expect(page.locator('.project-loader')).toBeHidden();
   await expect(page.locator('.pin-spacer')).toHaveCount(0);
-  for (const id of ['ventry', 'tavvro']) {
+  for (const id of ['ventry', 'tavvro', 'sitstick']) {
     await expect(page.locator(`#${id} .ventry-artwork`)).toHaveCSS(
       'filter',
       'none',
@@ -323,4 +327,96 @@ test('project anchors and original links retain their destinations', async ({
   await external.waitForLoadState();
   expect(external.url()).toBe(originalUrl);
   await external.close();
+});
+
+test('SitStick uses aligned uncropped images and reverses back through Tavvro', async ({
+  page,
+  context,
+}) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  await openPortfolio(page, '#sitstick');
+  expect(
+    await page
+      .locator('.ventry-project')
+      .evaluateAll((elements) => elements.map((element) => element.id)),
+  ).toEqual(['ventry', 'tavvro', 'sitstick']);
+  const project = page.locator('#sitstick');
+  await expect(project.locator('.ventry-button')).toHaveCSS('opacity', '1');
+  await expect(project.locator('.sitstick-colour-reveal')).toHaveCSS(
+    'opacity',
+    '1',
+  );
+  const images = project.locator('img');
+  await expect(images).toHaveCount(2);
+  for (const image of await images.all()) {
+    await expect(image).toHaveCSS('object-fit', 'contain');
+    expect(
+      await image.evaluate(
+        (element) => (element as HTMLImageElement).naturalWidth,
+      ),
+    ).toBeGreaterThan(0);
+  }
+  await expect(images.nth(0)).toHaveAttribute(
+    'src',
+    '/images/projects/sitstick/sitstick-bw.png',
+  );
+  await expect(images.nth(1)).toHaveAttribute(
+    'src',
+    '/images/projects/sitstick/sitstick-color.png',
+  );
+  expect(await images.nth(0).boundingBox()).toEqual(
+    await images.nth(1).boundingBox(),
+  );
+  const url =
+    'https://www.behance.net/gallery/248914979/SitStick-Redefining-Elderly-Mobility-Product-Design';
+  await expect(project.locator('.ventry-button')).toHaveAttribute('href', url);
+  await context.route(url, (route) =>
+    route.fulfill({ body: 'SitStick case study destination' }),
+  );
+  const popupPromise = page.waitForEvent('popup');
+  await project.locator('.ventry-button').click();
+  const popup = await popupPromise;
+  await popup.waitForLoadState();
+  expect(popup.url()).toBe(url);
+  await popup.close();
+  for (const progress of [1.5, 0.9, 0, 0.9, 1.5, 1.9]) {
+    await scrollProject(page, progress);
+    if (progress === 1.5) {
+      await expect
+        .poll(() =>
+          project
+            .locator('.ventry-artwork')
+            .evaluate((element) => Number(getComputedStyle(element).opacity)),
+        )
+        .toBeGreaterThan(0.3);
+      await expect.poll(() => page
+          .locator('#tavvro .ventry-artwork')
+          .evaluate((element) => Number(getComputedStyle(element).opacity))
+      ).toBeGreaterThan(0.1);
+    } else {
+      const id =
+        progress === 0 ? 'ventry' : progress === 0.9 ? 'tavvro' : 'sitstick';
+      await expect(page.locator(`#${id} .ventry-artwork`)).toHaveCSS(
+        'opacity',
+        '1',
+      );
+      await expect(page.locator(`#${id}`)).toHaveAttribute(
+        'aria-hidden',
+        'false',
+      );
+    }
+  }
+  await scrollProject(page, 2.2);
+  await expect
+    .poll(() =>
+      page
+        .locator('.project-stage')
+        .evaluate((element) => element.getBoundingClientRect().top),
+    )
+    .toBeLessThan(0);
+  expect(errors).toEqual([]);
 });
