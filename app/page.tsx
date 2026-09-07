@@ -864,7 +864,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
         alt: 'TAVVRO campus laundry service with a student drop-off counter and live order tracking',
       };
   const monoImage = mobility
-    ? '/images/projects/sitstick/sitstick-bw.png'
+    ? '/images/projects/sitstick/sitstick-color.png'
     : '/tavvro-mono.png';
   const colourImage = mobility
     ? '/images/projects/sitstick/sitstick-color.png'
@@ -899,17 +899,24 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
       className={`ventry-project reference-project ${project.id}-project is-visible`}
       aria-labelledby={`${project.id}-title`}
     >
-      <link rel="preload" as="image" href={monoImage} />
+      {!mobility && <link rel="preload" as="image" href={monoImage} />}
       <link rel="preload" as="image" href={colourImage} />
       <div className="ventry-editorial">
         <div
           ref={artwork}
           className={`ventry-artwork ${tapped ? 'is-tapped' : ''}`}
           onPointerEnter={(event) => {
-            if (event.pointerType === 'touch') return;
+            if (event.pointerType === 'touch' || (mobility && window.matchMedia('(hover: none), (pointer: coarse)').matches)) return;
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
               artwork.current?.classList.add('is-hovered');
               return;
+            }
+            if (mobility) {
+              const bounds = event.currentTarget.getBoundingClientRect();
+              target.current = {
+                x: ((event.clientX - bounds.left) / bounds.width) * 100,
+                y: ((event.clientY - bounds.top) / bounds.height) * 100,
+              };
             }
             active.current = true;
             artwork.current?.classList.add('is-hovered');
@@ -917,7 +924,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
             frame.current = requestAnimationFrame(animateReveal);
           }}
           onPointerMove={(event) => {
-            if (event.pointerType === 'touch') return;
+            if (event.pointerType === 'touch' || (mobility && window.matchMedia('(hover: none), (pointer: coarse)').matches)) return;
             const bounds = event.currentTarget.getBoundingClientRect();
             target.current = {
               x: ((event.clientX - bounds.left) / bounds.width) * 100,
@@ -930,22 +937,25 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
             if (frame.current !== null) cancelAnimationFrame(frame.current);
             frame.current = null;
           }}
+          onPointerUp={() => {
+            if (mobility && window.matchMedia('(hover: none), (pointer: coarse)').matches) setTapped((value) => !value);
+          }}
           onPointerDown={(event) => {
-            if (event.pointerType === 'touch') setTapped((value) => !value);
+            if (!mobility && event.pointerType === 'touch') setTapped((value) => !value);
           }}
         >
-          <div className="project-image-entrance">
+          <div className={`project-image-entrance ${mobility ? 'sitstick-artwork' : ''}`}>
             {mobility ? (
               <>
                 <img
-                  className="sitstick-layer ventry-mono"
-                  src={monoImage}
+                  className="sitstick-image sitstick-image--grayscale"
+                  src={colourImage}
                   alt={project.alt}
                   width="1672"
                   height="941"
                 />
                 <img
-                  className="sitstick-layer sitstick-colour-reveal ventry-colour"
+                  className="sitstick-image sitstick-image--color"
                   src={colourImage}
                   alt=""
                   aria-hidden="true"

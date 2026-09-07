@@ -3818,17 +3818,67 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   position: absolute;
   inset: 0;
 }
-.sitstick-layer,
-.sitstick-colour-reveal {
-  position: absolute;
-  inset: 0;
+.sitstick-artwork {
+  position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  background: #fff;
+  isolation: isolate;
 }
-.sitstick-layer {
-  max-width: 100%;
+.sitstick-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  object-position: center;
+  object-position: center center;
+  transform: none;
+  transform-origin: center;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+.sitstick-image--grayscale {
+  z-index: 1;
+  filter: grayscale(1) saturate(0) contrast(1.03);
+}
+.sitstick-image--color {
+  --reveal: clamp(220px, 20vw, 300px);
+  --sitstick-mask:
+    radial-gradient(ellipse var(--reveal) calc(var(--reveal) * .82) at var(--paint-x) var(--paint-y), #000 0%, #000f 32%, #0009 52%, #0003 68%, transparent 82%),
+    radial-gradient(ellipse calc(var(--reveal) * .72) calc(var(--reveal) * .88) at calc(var(--paint-x) + 45px) calc(var(--paint-y) - 24px), #000a 0%, #0006 36%, transparent 82%),
+    radial-gradient(ellipse calc(var(--reveal) * .8) calc(var(--reveal) * .58) at calc(var(--paint-x) - 42px) calc(var(--paint-y) + 32px), #0009 0%, #0004 38%, transparent 86%);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  will-change: mask-position, opacity;
+  -webkit-mask-image: var(--sitstick-mask);
+  mask-image: var(--sitstick-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sitstick-project .is-hovered .sitstick-image--color {
+    opacity: 1;
+    transition-duration: 300ms;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .sitstick-image--color {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .sitstick-project .is-tapped .sitstick-image--color { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sitstick-project .sitstick-image--color {
+    transition: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 .projects-motion .reference-project .ventry-button {
   gap: 10px;
