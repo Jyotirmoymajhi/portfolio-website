@@ -3996,6 +3996,7 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   height: 100%;
 }
 .sitstick-layer {
+  max-width: 100%;
   object-fit: contain;
   object-position: center;
 }
@@ -4150,14 +4151,13 @@ section[id], footer[id] { scroll-margin-top: 90px; }
 .projects-motion .ventry-right h3 { font-size: clamp(25px, 2.35vw, 38px); line-height: 1.08; }
 .projects-motion :is(.ventry-description, .ventry-support) { font-size: clamp(15px, 1.2vw, 20px); line-height: 1.4; }
 .projects-motion .ventry-button { width: fit-content; min-height: 48px; height: auto; padding: 15px 19px; }
-/* Preserve the supplied 1440 x 904 images; show only the left 75%. */
+/* Clean illustration-only sources share their native ratio, without a crop. */
 .sitstick-project .project-image-entrance { overflow: hidden; }
-.projects-motion .sitstick-image-source {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 133.333333%;
-  max-width: none;
-  height: 100%;
+.projects-motion .sitstick-project .ventry-artwork {
+  aspect-ratio: 1672 / 941;
+}
+.projects-motion.is-pinned .sitstick-project .ventry-artwork {
+  max-width: min(100%, calc((100svh - var(--project-nav-height, 92px) - 24px) * 1672 / 941));
 }
 @media (min-width: 1024px) and (max-width: 1439px) {
   .projects-motion .ventry-editorial { grid-template-columns: minmax(0, 66fr) minmax(0, 34fr); }

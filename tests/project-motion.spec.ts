@@ -328,7 +328,7 @@ test('project anchors and original links retain their destinations', async ({
   await external.close();
 });
 
-test('SitStick crops embedded text without modifying images and reverses through Tavvro', async ({
+test('SitStick contains clean aligned images and reverses through Tavvro', async ({
   page,
   context,
 }) => {
@@ -375,7 +375,8 @@ test('SitStick crops embedded text without modifying images and reverses through
   await expect(crop).toHaveCSS('overflow', 'hidden');
   const cropBounds = (await crop.boundingBox())!;
   const sourceBounds = (await images.nth(0).boundingBox())!;
-  expect(cropBounds.width / sourceBounds.width).toBeCloseTo(0.75, 2);
+  expect(cropBounds.width / sourceBounds.width).toBeCloseTo(1, 2);
+  expect(sourceBounds.width / sourceBounds.height).toBeCloseTo(1672 / 941, 2);
   expect(sourceBounds.x).toBeCloseTo(cropBounds.x, 1);
   await expect(project.locator('.ventry-right')).toHaveCount(1);
   const url =
@@ -552,4 +553,62 @@ test('touch projects stay monochrome on initial scroll', async ({ browser }) => 
     await expect(artwork.locator('.ventry-colour')).toHaveCSS('opacity', '0');
   }
   await context.close();
+});
+
+test('clean SitStick illustrations fit and hover at every requested width', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await openPortfolio(page);
+  for (const [width, height] of [[1920,1080], [1440,900], [1366,768], [1024,768], [768,1024], [390,844]]) {
+    await page.setViewportSize({width, height});
+    await page.mouse.move(0,0);
+    const project = page.locator('#sitstick');
+    const artwork = project.locator('.ventry-artwork');
+    const colour = project.locator('.ventry-colour');
+    if (width >= 1024) await scrollProject(page, 1.9);
+    else await artwork.scrollIntoViewIfNeeded();
+    await expect(artwork).toHaveCSS('opacity', '1');
+    await expect(artwork).toHaveCSS('filter', /^(none|blur\(0px\))$/);
+    await expect(project.locator('.project-image-entrance')).toHaveCSS('opacity', '1');
+    await expect(colour).toHaveCSS('opacity', '0');
+    const bounds = (await artwork.boundingBox())!;
+    const images = project.locator('img');
+    for (const img of await images.all()) {
+      await expect(img).toHaveCSS('object-fit', 'contain');
+      await expect(img).toHaveCSS('object-position', '50% 50%');
+      await expect(img).toHaveCSS('max-width', '100%');
+      expect(await img.evaluate(el => [(el as HTMLImageElement).naturalWidth, (el as HTMLImageElement).naturalHeight])).toEqual([1672,941]);
+      const imageBounds = (await img.boundingBox())!;
+      expect(imageBounds.x).toBeCloseTo(bounds.x, 0);
+      expect(imageBounds.y).toBeCloseTo(bounds.y, 0);
+      expect(imageBounds.width).toBeCloseTo(bounds.width, 0);
+      expect(imageBounds.height).toBeCloseTo(bounds.height, 0);
+      expect(imageBounds.width / imageBounds.height).toBeCloseTo(1672 / 941, 2);
+    }
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
+    await expect(project.locator('.ventry-right')).toHaveCount(1);
+    if (width >= 1024) {
+      const panel = (await project.locator('.ventry-right').boundingBox())!;
+      expect(bounds.x + bounds.width).toBeLessThanOrEqual(panel.x + 1);
+      expect(bounds.y + bounds.height).toBeLessThanOrEqual(height);
+      expect(bounds.y + bounds.height / 2).toBeCloseTo(panel.y + panel.height / 2, 0);
+    } else {
+      const panel = (await project.locator('.ventry-right').boundingBox())!;
+      expect(bounds.y + bounds.height).toBeLessThanOrEqual(panel.y);
+    }
+    await page.screenshot({path: `work/sitstick-clean-${width}-bw.png`});
+    await artwork.hover();
+    await expect(colour).toHaveCSS('opacity', '1');
+    expect(await images.nth(0).boundingBox()).toEqual(await images.nth(1).boundingBox());
+    expect(await artwork.boundingBox()).toEqual(bounds);
+    await page.screenshot({path: `work/sitstick-clean-${width}-hover.png`});
+    await page.mouse.move(0,0);
+    await expect(colour).toHaveCSS('opacity', '0');
+    await project.locator('.ventry-button').scrollIntoViewIfNeeded();
+    await expect(project.locator('.ventry-button')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  }
+  expect(errors).toEqual([]);
 });

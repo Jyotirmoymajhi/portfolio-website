@@ -1052,26 +1052,21 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
           <div className="project-image-entrance">
             {mobility ? (
               <>
-                <div className="sitstick-image-source">
-                  <img
-                    className="sitstick-layer ventry-mono"
-                    src={monoImage}
-                    alt={project.alt}
-                    width="1440"
-                    height="904"
-                  />
-                </div>
-                <div className="sitstick-colour-reveal ventry-colour" aria-hidden="true">
-                  <div className="sitstick-image-source">
-                    <img
-                      className="sitstick-layer"
-                      src={colourImage}
-                      alt=""
-                      width="1440"
-                      height="904"
-                    />
-                  </div>
-                </div>
+                <img
+                  className="sitstick-layer ventry-mono"
+                  src={monoImage}
+                  alt={project.alt}
+                  width="1672"
+                  height="941"
+                />
+                <img
+                  className="sitstick-layer sitstick-colour-reveal ventry-colour"
+                  src={colourImage}
+                  alt=""
+                  aria-hidden="true"
+                  width="1672"
+                  height="941"
+                />
               </>
             ) : (
               <>
