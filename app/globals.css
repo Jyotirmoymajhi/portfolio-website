@@ -4180,7 +4180,7 @@ section[id], footer[id] { scroll-margin-top: 90px; }
 }
 
 /* Shared hero and project call-to-action appearance. */
-:is(.reference-hero, .projects-motion .reference-project) .portfolio-button {
+:is(.reference-hero, .projects-motion .ventry-project) .portfolio-button {
   position: relative;
   isolation: isolate;
   display: flex;
@@ -4202,16 +4202,16 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   transform: none !important;
   transition: background-color 0.22s ease, color 0.22s ease;
 }
-:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:hover,
-:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:focus-visible {
+:is(.reference-hero, .projects-motion .ventry-project) .portfolio-button:hover,
+:is(.reference-hero, .projects-motion .ventry-project) .portfolio-button:focus-visible {
   background: #efeee8;
   color: #202124;
   outline: none;
 }
-:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:before {
+:is(.reference-hero, .projects-motion .ventry-project) .portfolio-button:before {
   transform: none;
 }
-:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:before {
+:is(.reference-hero, .projects-motion .ventry-project) .portfolio-button:before {
   content: '';
   position: absolute;
   z-index: 2;
@@ -4229,7 +4229,7 @@ section[id], footer[id] { scroll-margin-top: 90px; }
     linear-gradient(#202124, #202124) right bottom/15px 1px no-repeat,
     linear-gradient(#202124, #202124) right bottom/1px 15px no-repeat;
 }
-:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:hover:before,
-:is(.reference-hero, .projects-motion .reference-project) .portfolio-button:focus-visible:before {
+:is(.reference-hero, .projects-motion .ventry-project) .portfolio-button:hover:before,
+:is(.reference-hero, .projects-motion .ventry-project) .portfolio-button:focus-visible:before {
   opacity: 1;
 }
