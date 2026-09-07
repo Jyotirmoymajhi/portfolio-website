@@ -508,7 +508,11 @@ function ReferenceNavbar() {
         </label>
       </div>
       <a href="#contact" className="availability">
-        <i /> Available for Work
+        <span className="availability-dot" aria-hidden="true">
+          <span className="availability-dot__core" />
+          <span className="availability-dot__pulse" />
+        </span>
+        Available for Work
       </a>
       <button
         className="menu"

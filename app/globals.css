@@ -3801,7 +3801,7 @@ main:after {
 }
 
 /* Keep anchor destinations clear of the fixed navigation. */
-section[id], footer[id] { scroll-margin-top: 90px; }
+section[id], footer[id] { scroll-margin-top: var(--header-height); }
 
 /* Illustration areas from the paired project references. */
 .reference-project .ventry-artwork {
@@ -4229,4 +4229,89 @@ h1, h2, h3, h4, h5, h6,
 /* Heading fragments, emphasis and nested links keep their parent's role. */
 :is(h1, h2, h3, h4, h5, h6, .display-heading, .section-heading, .project-title, .project-statement) :is(span, em, strong, b, i, a, small) {
   font-family: inherit;
+}
+
+/* Responsive sizing for the main portfolio header only. */
+:root { --header-height: clamp(64px, 5.8vw, 88px); }
+.reference-navbar {
+  height: var(--header-height);
+  min-height: var(--header-height);
+  grid-template-columns: clamp(86px, 8vw, 126px) auto minmax(24px, 1fr) auto auto;
+}
+.reference-navbar > * { min-width: 0; }
+.reference-navbar nav { display: flex; height: 100%; min-height: 0; }
+.reference-navbar nav a {
+  width: auto;
+  padding: 0 clamp(14px, 2.8vw, 52px);
+  font-size: clamp(16px, 1.32vw, 21px);
+  line-height: 1;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.reference-navbar .nav-spacer { display: block; min-width: 24px; }
+.reference-navbar .portrait-mark { display: flex; align-items: flex-end; justify-content: center; }
+.reference-navbar .portrait-mark video {
+  width: auto;
+  height: clamp(50px, 5vw, 76px);
+  max-width: 100%;
+  max-height: calc(var(--header-height) - 8px);
+  object-fit: contain;
+  object-position: center bottom;
+}
+.reference-navbar > .music-control { display: block; }
+.reference-navbar .music-button { gap: 8px; padding: 0 clamp(14px, 2vw, 34px); }
+.reference-navbar .music-note { font-size: clamp(16px, 1.3vw, 20px); }
+.reference-navbar .music-button small { font-size: clamp(9px, .7vw, 11px); letter-spacing: .14em; }
+.reference-navbar > .availability {
+  display: inline-flex;
+  gap: clamp(9px, 1vw, 14px);
+  padding: 0 clamp(14px, 2.2vw, 38px);
+  font-size: clamp(16px, 1.32vw, 21px);
+}
+.reference-navbar > .menu { display: none; }
+.availability-dot { position: relative; width: 14px; height: 14px; display: inline-grid; place-items: center; flex: 0 0 auto; }
+.availability-dot__core {
+  position: relative; z-index: 2; width: 10px; height: 10px; border-radius: 50%;
+  background: #24b05a; box-shadow: 0 0 0 4px #24b05a1f;
+  animation: availability-blink 2.4s ease-in-out infinite;
+  transition: box-shadow .2s ease;
+}
+.availability-dot__pulse {
+  position: absolute; inset: 1px; border-radius: 50%; background: #24b05a52;
+  animation: availability-pulse 2.4s ease-out infinite;
+}
+@keyframes availability-pulse {
+  0% { transform: scale(.75); opacity: .7; }
+  60%, 100% { transform: scale(2.1); opacity: 0; }
+}
+@keyframes availability-blink {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: .72; filter: brightness(1.25); }
+}
+.availability:hover .availability-dot__core { box-shadow: 0 0 0 5px #24b05a24, 0 0 14px #24b05a59; }
+.availability:hover .availability-dot__pulse { animation-duration: 1.8s; }
+@media (min-width: 1440px) {
+  :root { --header-height: clamp(84px, 5.8vw, 88px); }
+}
+@media (min-width: 1024px) and (max-width: 1439px) {
+  :root { --header-height: clamp(72px, 5.8vw, 80px); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .reference-navbar .music-button small { display: none; }
+  .reference-navbar nav a { padding-inline: 14px; }
+}
+@media (max-width: 767px) {
+  :root { --header-height: clamp(58px, 8.2vw, 64px); }
+  .reference-navbar { grid-template-columns: 86px minmax(24px, 1fr) auto; }
+  .reference-navbar nav, .reference-navbar > .availability, .reference-navbar > .music-control { display: none; }
+  .reference-navbar > .menu { display: block; padding: 0 25px; border: 0; background: #fff; font-size: 15px; }
+  .reference-navbar .portrait-mark video { height: clamp(44px, 6.5vw, 50px); }
+  .reference-navbar .mobile-menu { display: flex; top: var(--header-height); font-size: 16px; }
+  .reference-navbar > .availability { font-size: 15px; }
+  .availability-dot { width: 11px; height: 11px; }
+  .availability-dot__core { width: 9px; height: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .availability-dot__core, .availability-dot__pulse { animation: none; }
+  .availability-dot__pulse { opacity: 0; }
 }
