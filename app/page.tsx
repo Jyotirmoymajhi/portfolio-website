@@ -338,7 +338,7 @@ function ReferenceHero() {
           </p>
           <a className="primary-button resume-button portfolio-button" href="#contact">
             <span className="resume-label">
-              Get in touch <ArrowUpRight size={17} />
+              Download Resume <ArrowUpRight size={17} />
             </span>
           </a>
         </div>
