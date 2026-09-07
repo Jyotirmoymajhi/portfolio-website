@@ -396,29 +396,44 @@ function ReferenceHero() {
       <div className="reveal-hint">
         <span /> Move to reveal colour
       </div>
-      <div className="hero-skills-marquee" aria-label="Design capabilities">
+      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- Keyboard users must be able to scroll this region in reduced-motion mode. */}
+      <section className="hero-skills-marquee" aria-label="Design capabilities" tabIndex={0}>
         <div className="hero-skills-track">
           {[0, 1].map((set) => (
-            <div
+            <ul
               className="hero-skills-group"
               aria-hidden={set === 1}
               key={set}
             >
               {[
+                'UX/UI Design',
+                'Brand Identity',
                 'User Research',
-                'Prototyping',
                 'Typography',
-                'A/B Testing',
+                'Product Design',
+                'Illustration',
+                'Interaction Design',
+                'Visual Communication',
+                'Information Architecture',
+                'Graphic Design',
+                'Prototyping',
                 'Design Systems',
+                'Journey Mapping',
+                'Visual Design',
+                'Usability Testing',
+                'Vibe Coding',
+                'Wireframing',
+                'Responsive Web Prototyping',
+                'User Flows',
               ].map((skill) => (
-                <span className="hero-skill" key={`${set}-${skill}`}>
-                  <i /> {skill}
-                </span>
+                <li className="hero-skill" key={`${set}-${skill}`}>
+                  <i aria-hidden="true" /> {skill}
+                </li>
               ))}
-            </div>
+            </ul>
           ))}
         </div>
-      </div>
+      </section>
     </section>
   );
 }

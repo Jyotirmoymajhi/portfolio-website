@@ -1566,22 +1566,32 @@ button {
   display: flex;
   width: max-content;
   height: 100%;
-  animation: hero-skills-scroll 28s linear infinite;
+  animation: hero-skills-scroll 55s linear infinite;
+}
+.hero-skills-marquee:hover .hero-skills-track,
+.hero-skills-marquee:focus-within .hero-skills-track {
+  animation-play-state: paused;
 }
 .hero-skills-group {
   display: flex;
+  flex-shrink: 0;
   height: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 .hero-skill {
-  width: 288px;
+  flex-shrink: 0;
   height: 100%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 52px;
+  gap: 18px;
+  padding-inline: clamp(28px, 3.2vw, 58px);
   border-right: 1px solid var(--line);
-  font:
-    400 25px/1 var(--font-body);
+  font-family: var(--font-heading);
+  font-size: clamp(20px, 1.8vw, 30px);
+  font-weight: 500;
+  line-height: 1;
   white-space: nowrap;
 }
 .hero-skill i {
@@ -1601,8 +1611,7 @@ button {
     height: 78px;
   }
   .hero-skill {
-    width: 240px;
-    padding: 0 34px;
+    padding-inline: 28px;
     font-size: 21px;
   }
 }
@@ -1611,9 +1620,8 @@ button {
     height: 68px;
   }
   .hero-skill {
-    width: 205px;
-    padding: 0 25px;
-    font-size: 18px;
+    padding-inline: 25px;
+    font-size: 20px;
   }
   .hero-skill i {
     width: 8px;
@@ -1621,6 +1629,12 @@ button {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .hero-skills-marquee {
+    overflow-x: auto;
+  }
+  .hero-skills-group[aria-hidden="true"] {
+    display: none;
+  }
   .hero-heading-line,
   .hero-skills-track {
     animation: none;
