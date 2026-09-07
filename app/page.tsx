@@ -14,7 +14,6 @@ import {
   Palette,
   PenTool,
   Share2,
-  Sparkles,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { ProjectMotion } from '@/components/project-motion';
@@ -24,119 +23,6 @@ import {
   DialogContent,
   DialogTitle,
 } from '@/components/ui/dialog';
-function About() {
-  return (
-    <section id="about" className="about section-pad">
-      <div className="section-kicker light">
-        <span>02</span>
-        <p>Beyond the pixels</p>
-        <small>Kolkata, India</small>
-      </div>
-      <div className="about-grid">
-        <h2>
-          I design with
-          <br />
-          <em>curiosity, care</em>
-          <br />
-          and conviction.
-        </h2>
-        <div>
-          <p className="about-lead">
-            I’m interested in the quiet details that change how something feels
-            — the right question, the rhythm of a screen, the story behind a
-            system.
-          </p>
-          <p>
-            Growing up in Kolkata taught me to see beauty in layers: old and
-            new, ordered and beautifully chaotic. That perspective travels into
-            every product I shape.
-          </p>
-          <a href="#contact" className="light-link">
-            More about my journey <ArrowUpRight />
-          </a>
-        </div>
-      </div>
-      <div className="stats">
-        {[
-          ['05+', 'Years of making'],
-          ['18', 'Projects shipped'],
-          ['12', 'Research methods'],
-          ['01', 'Human at the centre'],
-        ].map((x) => (
-          <div key={x[1]}>
-            <strong>{x[0]}</strong>
-            <span>{x[1]}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-function Experience() {
-  return (
-    <section id="experience" className="experience section-pad">
-      <div className="section-kicker">
-        <span>03</span>
-        <p>Experience & approach</p>
-        <small>Always learning</small>
-      </div>
-      <div className="experience-grid">
-        <h2>
-          From ambiguity
-          <br />
-          to <em>clarity.</em>
-        </h2>
-        <div className="timeline">
-          {[
-            [
-              'Listen closely',
-              'Research, context and the questions behind the brief.',
-            ],
-            [
-              'Find the signal',
-              'Turn observations into a focused opportunity.',
-            ],
-            [
-              'Make it visible',
-              'Prototype the system, interaction and story together.',
-            ],
-            [
-              'Learn in reality',
-              'Ship thoughtfully, measure and keep improving.',
-            ],
-          ].map((x, i) => (
-            <div className="timeline-row" key={x[0]}>
-              <span>0{i + 1}</span>
-              <h3>{x[0]}</h3>
-              <p>{x[1]}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-function Footer() {
-  return (
-    <footer id="contact" className="footer section-pad">
-      <Sparkles />
-      <p>Have a thoughtful problem?</p>
-      <h2>
-        Let’s make something
-        <br />
-        <em>meaningful.</em>
-      </h2>
-      <a href="mailto:hello@jyotirmoy.work">
-        hello@jyotirmoy.work <ArrowUpRight />
-      </a>
-      <div className="footer-bottom">
-        <span>© 2026 Jyotirmoy Majhi</span>
-        <span>Designed with care in Kolkata</span>
-        <a href="#home">Back to top ↑</a>
-      </div>
-    </footer>
-  );
-}
 function Overlays() {
   const [o, setO] = useState<null | 'about' | 'kolkata'>(null);
   useEffect(() => {
@@ -1129,10 +1015,7 @@ export default function Home() {
           <IllustratedProject />
           <IllustratedProject mobility />
         </ProjectMotion>
-        <About />
-        <Experience />
       </main>
-      <Footer />
       <Overlays />
     </>
   );
