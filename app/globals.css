@@ -4459,7 +4459,9 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* Volume stays inside MUSIC's existing cell, never over the hero artwork. */
-.reference-navbar .music-control { padding-bottom: 23px; }
+.reference-navbar .music-control { padding-bottom: 0; }
+.reference-navbar .music-control[data-volume-open='true'] { padding-bottom: 23px; }
+.music-volume-inline[hidden] { display: none; }
 .music-volume-inline {
   position: absolute;
   bottom: 6px;

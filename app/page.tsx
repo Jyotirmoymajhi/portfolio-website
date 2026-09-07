@@ -212,6 +212,20 @@ function ReferenceHero() {
 }
 function ReferenceNavbar() {
   const [open, setOpen] = useState(false);
+  const [volumeOpen, setVolumeOpen] = useState(false);
+  const musicCell = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!volumeOpen) return;
+    const outside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !musicCell.current?.contains(event.target)) setVolumeOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setVolumeOpen(false); musicCell.current?.querySelector('button')?.focus(); }
+    };
+    document.addEventListener('pointerdown', outside);
+    document.addEventListener('keydown', escape);
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape); };
+  }, [volumeOpen]);
   const [music, setMusic] = useState({ playing: false, volume: 1 });
   useEffect(() => {
     const update = (event: Event) =>
@@ -245,14 +259,19 @@ function ReferenceNavbar() {
         ))}
       </nav>
       <div className="nav-spacer" />
-      <div className={`music-control ${music.playing ? 'is-playing' : ''}`}>
+      <div ref={musicCell} data-volume-open={volumeOpen} className={`music-control ${music.playing ? 'is-playing' : ''}`}>
         <button
           className="music-button"
           aria-label={
             music.playing ? 'Pause ambient music' : 'Play ambient music'
           }
           aria-pressed={music.playing}
-          onClick={() => window.dispatchEvent(new Event('toggle-music'))}
+          aria-expanded={volumeOpen}
+          aria-controls="music-volume"
+          onClick={() => {
+            setVolumeOpen(value => !value);
+            window.dispatchEvent(new Event('toggle-music'));
+          }}
         >
           <span className="music-note">♪</span>
           <span className="equalizer" aria-hidden="true">
@@ -262,7 +281,7 @@ function ReferenceNavbar() {
           </span>
           <small>MUSIC</small>
         </button>
-        <label className="music-volume-inline">
+        <label id="music-volume" className="music-volume-inline" hidden={!volumeOpen}>
           <input type="range" min="0" max="100" step="1"
             aria-label="Music volume"
             aria-valuetext={Math.round(music.volume * 100) + '%'}

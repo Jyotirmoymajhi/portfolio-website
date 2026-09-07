@@ -145,6 +145,15 @@ export function PortfolioAudio() {
       player.volume = Math.max(0, Math.min(1, volume));
       publish();
     };
+    const blankClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element) || !target.closest('#home')) return;
+      if (target.closest('a, button, input, label, [role="button"], h1, h2, p, .hero-skills-marquee')) return;
+      if (enabled) return;
+      enabled = true;
+      restartText();
+      publish();
+    };
     const wordChanged = () => { if (!imageActive) void play(false); };
     const visibility = () => { if (document.hidden) { stop(); publish(); } };
     const observer = new IntersectionObserver(([entry]) => {
@@ -157,6 +166,7 @@ export function PortfolioAudio() {
     window.addEventListener('toggle-music', toggle);
     window.addEventListener('hero-word-change', wordChanged);
     window.addEventListener('hero-music', imageChanged);
+    document.addEventListener('click', blankClick);
     document.addEventListener('visibilitychange', visibility);
     // Attempt once at full volume. Rejection leaves MUSIC ready for a user click.
     void play(false);
@@ -166,6 +176,7 @@ export function PortfolioAudio() {
       window.removeEventListener('toggle-music', toggle);
       window.removeEventListener('hero-word-change', wordChanged);
       window.removeEventListener('hero-music', imageChanged);
+      document.removeEventListener('click', blankClick);
       document.removeEventListener('visibilitychange', visibility);
     };
   }, []);
