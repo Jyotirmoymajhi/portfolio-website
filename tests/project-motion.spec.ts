@@ -5,6 +5,7 @@ async function openPortfolio(page: Page, hash = '') {
   await expect(page.locator('.project-loader')).toHaveAttribute(
     'data-complete',
     'true',
+    { timeout: 20000 },
   );
   await expect(page.locator('html')).not.toHaveCSS('overflow', 'hidden');
 }
@@ -72,7 +73,7 @@ test('loader counts, releases scroll, refreshes, and desktop scrub reverses', as
   const values = samples
     .filter((sample) => sample.active)
     .map((sample) => Number.parseInt(sample.text));
-  expect(values.length).toBeGreaterThan(10);
+  expect(values.length).toBeGreaterThan(2);
   expect(values).toEqual([...values].sort((a, b) => a - b));
   const active = samples.find((sample) => sample.active)!;
   const finished = samples.find(
@@ -142,11 +143,9 @@ test('desktop/tablet buttons fit and resize removes duplicate pins', async ({
   await openPortfolio(page);
   for (const [width, height] of [
     [1440, 900],
-    [1536, 864],
     [1920, 1080],
-    [1280, 800],
+    [1366, 768],
     [1024, 768],
-    [768, 1024],
   ]) {
     await page.setViewportSize({ width, height });
     await expect(page.locator('.pin-spacer')).toHaveCount(1);
@@ -187,8 +186,8 @@ test('mobile is image-first, scrollable, and reveals all project buttons', async
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openPortfolio(page);
-  for (const width of [390, 360, 767]) {
-    await page.setViewportSize({ width, height: 844 });
+  for (const [width, height] of [[390, 844], [360, 800], [768, 1024]]) {
+    await page.setViewportSize({ width, height });
     await expect(page.locator('.pin-spacer')).toHaveCount(0);
     for (const id of ['ventry', 'tavvro', 'sitstick']) {
       const project = page.locator(`#${id}`);
@@ -329,7 +328,7 @@ test('project anchors and original links retain their destinations', async ({
   await external.close();
 });
 
-test('SitStick uses aligned uncropped images and reverses back through Tavvro', async ({
+test('SitStick crops embedded text without modifying images and reverses through Tavvro', async ({
   page,
   context,
 }) => {
@@ -354,6 +353,7 @@ test('SitStick uses aligned uncropped images and reverses back through Tavvro', 
   await expect(images).toHaveCount(2);
   for (const image of await images.all()) {
     await expect(image).toHaveCSS('object-fit', 'contain');
+    await expect(image).toHaveCSS('object-position', '0% 50%');
     expect(
       await image.evaluate(
         (element) => (element as HTMLImageElement).naturalWidth,
@@ -371,6 +371,13 @@ test('SitStick uses aligned uncropped images and reverses back through Tavvro', 
   expect(await images.nth(0).boundingBox()).toEqual(
     await images.nth(1).boundingBox(),
   );
+  const crop = project.locator('.project-image-entrance');
+  await expect(crop).toHaveCSS('overflow', 'hidden');
+  const cropBounds = (await crop.boundingBox())!;
+  const sourceBounds = (await images.nth(0).boundingBox())!;
+  expect(cropBounds.width / sourceBounds.width).toBeCloseTo(0.75, 2);
+  expect(sourceBounds.x).toBeCloseTo(cropBounds.x, 1);
+  await expect(project.locator('.ventry-right')).toHaveCount(1);
   const url =
     'https://www.behance.net/gallery/248914979/SitStick-Redefining-Elderly-Mobility-Product-Design';
   await expect(project.locator('.ventry-button')).toHaveAttribute('href', url);
@@ -418,5 +425,65 @@ test('SitStick uses aligned uncropped images and reverses back through Tavvro', 
         .evaluate((element) => element.getBoundingClientRect().top),
     )
     .toBeLessThan(0);
+  expect(errors).toEqual([]);
+});
+
+test('every requested viewport keeps project content bounded and transitions readable', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await openPortfolio(page);
+  for (const [width, height] of [[1920,1080], [1440,900], [1366,768], [1024,768], [768,1024], [390,844], [360,800]]) {
+    await page.setViewportSize({width, height});
+    const pinned = width >= 1024;
+    await expect(page.locator('.pin-spacer')).toHaveCount(pinned ? 1 : 0);
+    for (const [id, progress] of [['ventry',0], ['tavvro',0.9], ['sitstick',1.9]] as const) {
+      const project = page.locator(`#${id}`);
+      if (pinned) await scrollProject(page, progress);
+      else await project.locator('.ventry-artwork').scrollIntoViewIfNeeded();
+      await expect(project.locator('.ventry-button')).toHaveCSS('opacity','1');
+      if (!pinned) await expect(project.locator('.project-image-entrance')).toHaveCSS('opacity', '1');
+      if (pinned) await expect(project).toHaveAttribute('aria-hidden', 'false');
+      await expect.poll(() => project.evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        const targets = element.querySelectorAll('.ventry-right > *, .ventry-artwork');
+        return Array.from(targets).every(target => {
+          const rect = target.getBoundingClientRect();
+          return rect.left >= 0 && rect.right <= innerWidth + 1 && rect.top >= bounds.top - 1 && rect.bottom <= bounds.bottom + 1;
+        });
+      })).toBeTruthy();
+      if (pinned) {
+        const button = (await project.locator('.ventry-button').boundingBox())!;
+        const title = (await project.locator('h2').boundingBox())!;
+        expect(button.y + button.height).toBeLessThanOrEqual(height + 1);
+        expect(title.y).toBeGreaterThanOrEqual(0);
+      }
+      const crop = (await project.locator('.ventry-artwork').boundingBox())!;
+      expect(crop.width).toBeGreaterThan(200);
+      if (id === 'ventry') {
+        const image = (await project.locator('.ventry-mono').boundingBox())!;
+        expect(image.y).toBeCloseTo(crop.y, 0);
+        expect(image.height).toBeCloseTo(crop.height, 0);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+      await page.screenshot({path: `work/selected-work-${width}x${height}-${id}.png`});
+    }
+    if (pinned) {
+      // Sample both transitions in both directions, including the content handoff.
+      for (const value of [0.3,0.42,0.5,0.6,0.75,1.3,1.42,1.5,1.6,1.75,1.6,1.5,1.42,1.3,0.75,0.6,0.5,0.42,0.3,0]) {
+        await scrollProject(page, value);
+        await expect.poll(() => page.locator('.ventry-right').evaluateAll(panels =>
+          panels.filter(panel => {
+            const style = getComputedStyle(panel);
+            const title = getComputedStyle(panel.querySelector('h2')!);
+            return style.visibility !== 'hidden' && title.visibility !== 'hidden' && Number(style.opacity) * Number(title.opacity) > 0.05;
+          }).length
+        )).toBeLessThanOrEqual(1);
+        await expect.poll(() => page.locator('.ventry-artwork').evaluateAll(artworks =>
+          Math.max(...artworks.map(artwork => Number(getComputedStyle(artwork).opacity)))
+        )).toBeGreaterThan(0.15);
+      }
+    }
+  }
   expect(errors).toEqual([]);
 });

@@ -4083,7 +4083,7 @@ section[id], footer[id] { scroll-margin-top: 90px; }
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-@media (min-width: 768px) and (min-height: 740px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
   .projects-motion.is-pinned .project-stage {
     height: calc(100svh - var(--project-nav-height, 92px));
   }
@@ -4129,4 +4129,74 @@ section[id], footer[id] { scroll-margin-top: 90px; }
     filter: none;
     mask-image: none;
   }
+}
+/* Selected Work: one bounded frame shared by all three projects. */
+.projects-motion, .projects-motion * { box-sizing: border-box; }
+.projects-motion { overflow: visible; }
+.projects-motion .ventry-project { padding: 0 max(2.7vw, 22px); }
+.projects-motion .ventry-editorial {
+  width: min(100%, 1720px);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 70fr) minmax(0, 30fr);
+  align-items: center;
+  height: auto;
+  min-height: 0;
+}
+.projects-motion .ventry-editorial > * { min-width: 0; }
+.projects-motion .ventry-artwork {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1080 / 904;
+  align-self: center;
+  margin: 0;
+  overflow: hidden;
+}
+.projects-motion .ventry-layer { inset: 0; width: 100%; height: 100%; object-position: left center; transform: none; max-width: 100%; }
+.projects-motion .ventry-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(12px, 2vh, 24px);
+  padding: clamp(20px, 3vh, 36px) clamp(18px, 2vw, 36px);
+  min-width: 0;
+  height: 100%;
+}
+.projects-motion .ventry-right > * { margin: 0; max-width: 100%; flex-shrink: 0; }
+.projects-motion .ventry-label { font-size: clamp(12px, 1.05vw, 18px); white-space: normal; }
+.projects-motion .ventry-right h2 { font-size: clamp(38px, 4.2vw, 66px); line-height: 1.05; }
+.projects-motion .ventry-categories { font-size: clamp(12px, 1vw, 17px); line-height: 1.35; }
+.projects-motion .ventry-right h3 { font-size: clamp(25px, 2.35vw, 38px); line-height: 1.08; }
+.projects-motion :is(.ventry-description, .ventry-support) { font-size: clamp(15px, 1.2vw, 20px); line-height: 1.4; }
+.projects-motion .ventry-button { width: fit-content; min-height: 48px; height: auto; padding: 15px 19px; }
+/* Preserve the supplied 1440 x 904 images; show only the left 75%. */
+.sitstick-project .project-image-entrance { overflow: hidden; }
+.projects-motion .sitstick-layer {
+  inset: 0 auto 0 0;
+  width: 133.333333%;
+  max-width: none;
+  height: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .projects-motion .ventry-editorial { grid-template-columns: minmax(0, 66fr) minmax(0, 34fr); }
+}
+@media (min-width: 1024px) and (min-height: 640px) {
+  .projects-motion.is-pinned .ventry-artwork {
+    max-width: calc((100svh - var(--project-nav-height, 92px) - 24px) * 1080 / 904);
+    justify-self: center;
+  }
+}
+@media (max-width: 1023px) {
+  .projects-motion .ventry-project { width: 100%; padding: 32px 22px 52px; }
+  .projects-motion .ventry-editorial { grid-template-columns: minmax(0, 1fr); gap: 28px; max-width: 720px; }
+  .projects-motion .ventry-artwork { grid-column: 1; order: 0; }
+  .projects-motion .ventry-right { grid-column: 1; padding: 0; border: 0; gap: 20px; }
+  .projects-motion .ventry-right h2 { font-size: clamp(48px, 9vw, 66px); }
+  .projects-motion .ventry-right h3 { font-size: clamp(28px, 5vw, 36px); }
+  .projects-motion .ventry-label, .projects-motion .ventry-categories { font-size: 14px; }
+  .projects-motion :is(.ventry-description, .ventry-support) { font-size: 17px; }
 }

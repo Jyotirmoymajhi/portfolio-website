@@ -1048,7 +1048,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
                   className="sitstick-layer"
                   src={monoImage}
                   alt={project.alt}
-                  width="1080"
+                  width="1440"
                   height="904"
                 />
                 <div className="sitstick-colour-reveal" aria-hidden="true">
@@ -1056,7 +1056,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
                     className="sitstick-layer"
                     src={colourImage}
                     alt=""
-                    width="1080"
+                    width="1440"
                     height="904"
                   />
                 </div>

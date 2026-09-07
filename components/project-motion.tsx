@@ -38,6 +38,9 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
     let releaseAssets = () => {};
     let followProjectHash = () => {};
     let initialHashPending = true;
+    let initializeProjects = () => {};
+    let projectsInitialized = false;
+    let projectAssetsReady = false;
     const entrances: { element: HTMLElement; timeline: gsap.core.Timeline }[] =
       [];
     const media = gsap.matchMedia();
@@ -77,7 +80,7 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
       cancelAnimationFrame(refreshFrame);
       refreshFrame = requestAnimationFrame(() => {
         ScrollTrigger.refresh();
-        if (ready && unlocked && initialHashPending) {
+        if (ready && unlocked && projectsInitialized && initialHashPending) {
           initialHashPending = false;
           followProjectHash();
         }
@@ -97,6 +100,7 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
       if (disposed) return;
       ready = true;
       loaderCompleted = true;
+      if (projectAssetsReady) initializeProjects();
       revealVisibleProjects();
       refresh();
     };
@@ -107,11 +111,14 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
       }
     };
 
-    const ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {}, scope);
+    const initialize = ctx.add('initializeProjects', () => {
+      if (disposed || projectsInitialized) return;
+      projectsInitialized = true;
       media.add(
         {
-          desktop: '(min-width: 768px) and (min-height: 740px)',
-          flow: '(max-width: 767px), (max-height: 739px)',
+          desktop: '(min-width: 1024px) and (min-height: 640px)',
+          flow: '(max-width: 1023px), (max-height: 639px)',
           reduce: '(prefers-reduced-motion: reduce)',
         },
         (context) => {
@@ -126,9 +133,9 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
           setNavHeight();
           ScrollTrigger.addEventListener('refreshInit', setNavHeight);
 
-          // Intro motion uses an inner image layer so the scrub timeline can
-          // independently animate the artwork without competing transforms.
-          const introProjects = desktop ? projects.slice(0, 1) : projects;
+          // Flow entrances are independent; desktop visibility belongs entirely
+          // to the reversible master timeline.
+          const introProjects = desktop ? [] : projects;
           introProjects.forEach((project) => {
             const intro = gsap.timeline({ paused: true });
             intro.fromTo(
@@ -137,11 +144,13 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
                 opacity: desktop ? 0.35 : 0.6,
                 filter: `blur(${desktop ? 10 : 3}px)`,
                 scale: 1.02,
+                y: 12,
               },
               {
                 opacity: 1,
                 filter: 'blur(0px)',
                 scale: 1,
+                y: 0,
                 duration: 0.8,
                 ease: 'power2.out',
               },
@@ -213,7 +222,7 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
                 project.inert = hidden;
                 project.setAttribute('aria-hidden', String(hidden));
                 project.style.pointerEvents = hidden ? 'none' : 'auto';
-                project.style.zIndex = hidden ? '0' : '1';
+                project.style.zIndex = String(index + 1);
               });
             };
             const transition = gsap.timeline({
@@ -316,7 +325,11 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
           };
         },
       );
+      refresh();
+    });
+    initializeProjects = () => { initialize(); };
 
+    ctx.add(() => {
       if (ready) {
         overlay.dataset.complete = 'true';
         loaderCompleted = true;
@@ -421,7 +434,7 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
         master?.kill();
         finish();
       }, 3000);
-    }, scope);
+    });
 
     // Only first-project assets block the loader; fonts and other images refresh
     // measurements independently and can never hold the white layer open.
@@ -431,6 +444,23 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
     void Promise.allSettled(
       essentialImages.map((image) => image.decode()),
     ).then(releaseAssets);
+    // Include CSS background assets; measure only after the loader unlocks.
+    const projectAssets = Array.from(
+      document.querySelectorAll<HTMLLinkElement>('link[rel="preload"][as="image"]'),
+    ).map((link) => {
+      const image = new Image();
+      image.src = link.href;
+      return image.decode();
+    });
+    const startProjects = () => {
+      projectAssetsReady = true;
+      if (disposed || !ready || !unlocked) return;
+      initializeProjects();
+      refresh();
+    };
+    void Promise.allSettled([...projectAssets, document.fonts.ready]).then(startProjects);
+    // Failed or stalled decoding must not disable the section indefinitely.
+    const projectDeadline = window.setTimeout(startProjects, 3100);
     const images = Array.from(document.images);
     images.forEach((image) => image.addEventListener('load', refresh));
     void document.fonts.ready.then(refresh);
@@ -442,6 +472,7 @@ export function ProjectMotion({ children }: { children: ReactNode }) {
       disposed = true;
       window.clearTimeout(deadline);
       window.clearTimeout(assetDeadline);
+      window.clearTimeout(projectDeadline);
       cancelAnimationFrame(refreshFrame);
       reduced.removeEventListener('change', onReducedMotion);
       window.removeEventListener('resize', refresh);
