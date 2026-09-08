@@ -4504,3 +4504,15 @@ html.custom-cursor-active *::after {
   cursor: none !important;
 }
 .custom-cursor-active .service-card-cursor { display: none; }
+
+.artwork-cursor.site-cursor {
+  transform-origin: center;
+  transition: scale 160ms ease, background-color 160ms ease;
+}
+.artwork-cursor.site-cursor[data-interactive='true'] {
+  scale: 1.25;
+  background-color: rgb(240 74 19 / 12%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .artwork-cursor.site-cursor { transition: none; }
+}
