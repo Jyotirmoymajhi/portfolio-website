@@ -4484,3 +4484,23 @@ h1, h2, h3, h4, h5, h6,
   cursor: pointer;
 }
 .music-volume-inline output { min-width: 25px; text-align: right; }
+
+/* One viewport cursor, above page content and dialog portals. */
+.artwork-cursor.site-cursor {
+  position: fixed;
+  display: block;
+  z-index: 2147483647;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  transition: none;
+}
+html.custom-cursor-active,
+html.custom-cursor-active *,
+html.custom-cursor-active *::before,
+html.custom-cursor-active *::after {
+  cursor: none !important;
+}
+.custom-cursor-active .service-card-cursor { display: none; }

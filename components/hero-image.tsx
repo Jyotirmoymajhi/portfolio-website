@@ -78,7 +78,6 @@ export function HeroImage() {
     >
       <div className="hero-image hero-mono" />
       <div className="hero-image hero-color" />
-      <div className="artwork-cursor" aria-hidden="true"><span /></div>
     </div>
   );
 }
