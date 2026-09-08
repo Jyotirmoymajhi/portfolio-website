@@ -688,9 +688,9 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
           <p className="ventry-support">{project.process}</p>
           <a
             className="ventry-button resume-button portfolio-button"
-            href={mobility ? 'https://www.behance.net/gallery/248914979/SitStick-Redefining-Elderly-Mobility-Product-Design' : colourImage}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={mobility ? 'https://www.behance.net/gallery/248914979/SitStick-Redefining-Elderly-Mobility-Product-Design' : '/works/tavvro'}
+            target={mobility ? '_blank' : undefined}
+            rel={mobility ? 'noopener noreferrer' : undefined}
           >
             <span className="resume-label">View Project <ArrowUpRight size={17} /></span>
           </a>
