@@ -615,7 +615,7 @@ function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
           'An eco-friendly, pay-by-weight laundry service with flexible booking, seamless drop-offs and live tracking built around real student routines.',
         process:
           'Designed through research, systems thinking and real operational needs.',
-        alt: 'TAVVRO campus laundry service with a student drop-off counter and live order tracking',
+        alt: 'TAVVRO campus laundry journey showing scheduled pickup, courier handover and clean, folded clothes',
       };
   const monoImage = mobility
     ? '/images/projects/sitstick/sitstick-color.png'

@@ -45,8 +45,8 @@ function FullStudyLink() {
 function Artwork({ final = false }: { final?: boolean }) {
   return <figure className={final ? 'tc-showcase' : 'tc-hero-art'}>
     <RevealImage className="tc-artwork" instructionId={final ? 'tavvro-final' : 'tavvro-case-study'}>
-      <img src="/tavvro-mono.png" width={1440} height={904} loading={final ? 'lazy' : 'eager'} alt="Tavvro campus laundry concept: a student at the collection counter, labelled laundry bags and an order-status display." />
-      <img className="ventry-colour" src="/tavvro-colour.png" width={1440} height={904} loading={final ? 'lazy' : 'eager'} alt="" aria-hidden="true" />
+      <img src="/tavvro-mono.png" width={1672} height={941} loading={final ? 'lazy' : 'eager'} alt="Tavvro campus laundry journey: a student schedules a pickup, hands a labelled laundry bag to a courier and receives clean, folded clothes." />
+      <img className="ventry-colour" src="/tavvro-colour.png" width={1672} height={941} loading={final ? 'lazy' : 'eager'} alt="" aria-hidden="true" />
     </RevealImage>
     {final && <figcaption>Service concept artwork · Booking, cleaning and collection as one connected experience.</figcaption>}
   </figure>;

@@ -4504,3 +4504,8 @@ html.custom-cursor-active *::after {
   cursor: none !important;
 }
 .custom-cursor-active .service-card-cursor { display: none; }
+
+/* Tavvro replacement artwork uses the complete landscape illustration. */
+.projects-motion .tavvro-project .ventry-artwork { aspect-ratio: 1672 / 941; }
+.projects-motion.is-pinned .tavvro-project .ventry-artwork { max-width: min(100%, calc((100svh - var(--project-nav-height, 92px) - 24px) * 1672 / 941)); }
+.tavvro-project .reference-project-image { background-size: contain; background-position: center; }
