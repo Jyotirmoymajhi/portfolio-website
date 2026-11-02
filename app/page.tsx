@@ -17,8 +17,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { HeroImage } from '@/components/hero-image';
-import { RevealImage, PortfolioAudio } from '@/components/reveal-image';
-import { ProjectMotion } from '@/components/project-motion';
+import { PortfolioAudio } from '@/components/reveal-image';
+import { ProjectShowcase } from '@/components/showcase/ProjectShowcase';
 import {
   Dialog,
   DialogClose,
@@ -521,185 +521,6 @@ function SelectedWorkIntro() {
   );
 }
 
-function VentryProject() {
-  const section = useRef<HTMLElement>(null);
-  return (
-    <section
-      ref={section}
-      id="ventry"
-      className="ventry-project is-visible"
-      aria-labelledby="ventry-title"
-    >
-      <link rel="preload" as="image" href="/ventry-artwork-mono.jpg" />
-      <link rel="preload" as="image" href="/ventry-artwork-colour.jpg" />
-      <div className="ventry-editorial">
-        <RevealImage className="ventry-artwork" instructionId={'ventry'}>
-          <div className="project-image-entrance">
-            {/* Paired reveal layers need matching native image geometry. */}
-            {/* oxlint-disable-next-line next/no-img-element */}
-            <img
-              className="ventry-layer ventry-mono"
-              src="/ventry-artwork-mono.jpg"
-              alt="Ventry omnichannel restaurant operations and inventory management system"
-              width="1080"
-              height="904"
-            />
-            <img
-              className="ventry-layer ventry-colour"
-              src="/ventry-artwork-colour.jpg"
-              alt=""
-              aria-hidden="true"
-              width="1080"
-              height="904"
-            />
-          </div>
-        </RevealImage>
-        <div className="ventry-right project-copy">
-          <p className="ventry-label">01 — PRODUCT SYSTEM</p>
-          <h2 id="ventry-title">VENTRY</h2>
-          <p className="ventry-categories">
-            <span>UX RESEARCH</span>
-            <i>•</i>
-            <span>OMNICHANNEL</span>
-            <i>•</i>
-            <span>PRODUCT DESIGN</span>
-          </p>
-          <h3>
-            <span>Restaurant operations,</span>
-            <span>connected.</span>
-          </h3>
-          <p className="ventry-description">
-            A unified operations platform connecting inventory, vendors,
-            sourcing and delivery—helping restaurant teams plan faster with
-            greater visibility.
-          </p>
-          <p className="ventry-support">
-            Developed through stakeholder research, workflow mapping and rapid
-            prototyping.
-          </p>
-          <a
-            className="ventry-button resume-button portfolio-button"
-            href="https://www.behance.net/gallery/243632661/Ventry-An-Omnichannel-UX-Case-Study"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="resume-label">View Project <ArrowUpRight size={17} /></span>
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function IllustratedProject({ mobility = false }: { mobility?: boolean }) {
-  const project = mobility
-    ? {
-        id: 'sitstick',
-        name: 'SITSTICK',
-        label: '03 — MOBILITY INNOVATION',
-        categories: ['USER RESEARCH', 'PRODUCT DESIGN', 'PROTOTYPING'],
-        heading: ['Mobility with a', 'moment of rest.'],
-        description:
-          'A walking-support solution that transforms into a portable seat, helping older adults move confidently and rest whenever needed.',
-        process:
-          'Designed through user research, ergonomic exploration and real mobility needs.',
-        alt: 'SITSTICK walking support that transforms into a portable seat, with an older adult resting in a park',
-      }
-    : {
-        id: 'tavvro',
-        name: 'TAVVRO',
-        label: '02 — SERVICE EXPERIENCE',
-        categories: ['UX RESEARCH', 'SERVICE DESIGN', 'MOBILE APP'],
-        heading: ['Campus laundry,', 'simplified.'],
-        description:
-          'An eco-friendly, pay-by-weight laundry service with flexible booking, seamless drop-offs and live tracking built around real student routines.',
-        process:
-          'Designed through research, systems thinking and real operational needs.',
-        alt: 'TAVVRO campus laundry journey showing scheduled pickup, courier handover and clean, folded clothes',
-      };
-  const monoImage = mobility
-    ? '/images/projects/sitstick/sitstick-color.png'
-    : '/tavvro-mono.png';
-  const colourImage = mobility
-    ? '/images/projects/sitstick/sitstick-color.png'
-    : '/tavvro-colour.png';
-  const section = useRef<HTMLElement>(null);
-  return (
-    <section
-      ref={section}
-      id={project.id}
-      className={`ventry-project reference-project ${project.id}-project is-visible`}
-      aria-labelledby={`${project.id}-title`}
-    >
-      {!mobility && <link rel="preload" as="image" href={monoImage} />}
-      <link rel="preload" as="image" href={colourImage} />
-      <div className="ventry-editorial">
-        <RevealImage className="ventry-artwork" instructionId={project.id}>
-          <div className={`project-image-entrance ${mobility ? 'sitstick-artwork' : ''}`}>
-            {mobility ? (
-              <>
-                <img
-                  className="sitstick-image sitstick-image--grayscale"
-                  src={colourImage}
-                  alt={project.alt}
-                  width="1672"
-                  height="941"
-                />
-                <img
-                  className="sitstick-image sitstick-image--color"
-                  src={colourImage}
-                  alt=""
-                  aria-hidden="true"
-                  width="1672"
-                  height="941"
-                />
-              </>
-            ) : (
-              <>
-                <figure
-                  className="ventry-layer ventry-mono reference-project-image"
-                  aria-label={project.alt}
-                  style={{ backgroundImage: `url(/${project.id}-mono.png)` }}
-                />
-                <div
-                  className="ventry-layer ventry-colour reference-project-image"
-                  aria-hidden="true"
-                  style={{ backgroundImage: `url(/${project.id}-colour.png)` }}
-                />
-              </>
-            )}
-          </div>
-        </RevealImage>
-        <div className="ventry-right project-copy">
-          <p className="ventry-label">{project.label}</p>
-          <h2 id={`${project.id}-title`}>{project.name}</h2>
-          <p className="ventry-categories">
-            <span>{project.categories[0]}</span>
-            <i>•</i>
-            <span>{project.categories[1]}</span>
-            <i>•</i>
-            <span>{project.categories[2]}</span>
-          </p>
-          <h3>
-            <span>{project.heading[0]}</span>
-            <span>{project.heading[1]}</span>
-          </h3>
-          <p className="ventry-description">{project.description}</p>
-          <p className="ventry-support">{project.process}</p>
-          <a
-            className="ventry-button resume-button portfolio-button"
-            href={mobility ? 'https://www.behance.net/gallery/248914979/SitStick-Redefining-Elderly-Mobility-Product-Design' : '/works/tavvro'}
-            target={mobility ? '_blank' : undefined}
-            rel={mobility ? 'noopener noreferrer' : undefined}
-          >
-            <span className="resume-label">View Project <ArrowUpRight size={17} /></span>
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export default function Home() {
   return (
     <>
@@ -709,11 +530,7 @@ export default function Home() {
         <WhatIBring />
         <ServicesGrid />
         <SelectedWorkIntro />
-        <ProjectMotion>
-          <VentryProject />
-          <IllustratedProject />
-          <IllustratedProject mobility />
-        </ProjectMotion>
+        <ProjectShowcase />
       </main>
       <Overlays />
     </>
