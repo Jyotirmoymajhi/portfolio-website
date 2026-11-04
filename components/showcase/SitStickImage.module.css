@@ -1,31 +1,59 @@
-.frame { overflow: hidden; isolation: isolate; border-radius: inherit; background: white; --movement: 1; }
-.stage { position: absolute; top: 50%; left: 50%; width: calc(100% - 32px); aspect-ratio: 1672 / 941; transform: translate(-50%, -50%); }
-.entrance, .hover, .garden, .bloom, .flowerHover, .growth, .patch { position: absolute; inset: 0; width: 100%; height: 100%; }
-.entrance { animation: entrance 900ms cubic-bezier(.22,1,.36,1) both; }
-.hover { transition: transform 550ms ease; }
-.garden { pointer-events: none; }
-.garden * { position: absolute; pointer-events: none; }
-.flower, .plant, .canopy { isolation: isolate; }
-.patch { background-image: url('/images/showcase/sitstick-watercolor.png'); background-size: var(--patch-size); background-position: var(--patch-position); background-repeat: no-repeat; mask-image: radial-gradient(ellipse, #000 48%, #000c 65%, transparent 74%); }
-.bloom { transform-origin: center; animation: bloom 650ms cubic-bezier(.22,1,.36,1) var(--delay) both; }
-.flowerHover { transition: transform 500ms ease; }
-.flowerBreeze { transform-origin: 50% 80%; animation: flowerBreeze var(--duration) ease-in-out var(--breeze-delay) infinite alternate both; }
-.growth { transform-origin: bottom center; animation: growth 800ms cubic-bezier(.22,1,.36,1) var(--delay) both; }
-.leafBreeze { transform-origin: bottom center; mask-image: radial-gradient(ellipse, #000 30%, #000a 55%, transparent 72%); animation: leafBreeze var(--duration) ease-in-out calc(var(--delay) + .8s) infinite alternate both; }
-.treeBreeze { animation: treeBreeze var(--duration) ease-in-out 1.6s infinite alternate both; }
-.petal { width: .36%; height: .85%; opacity: 0; border-radius: 70% 35% 65% 40%; background: radial-gradient(ellipse at 30% 35%, #ffc2af, #e78171 48%, transparent 75%); animation: petal 27s linear infinite both; }
-.petal[data-petal=white] { background: radial-gradient(ellipse at 30% 35%, #fffef6, #eee9cf 48%, transparent 75%); }
-.petal[data-petal=yellow] { background: radial-gradient(ellipse at 30% 35%, #fff4c6, #e6d48a 48%, transparent 75%); }
-.frame[data-running=false] *, .frame[data-started=false] * { animation-play-state: paused !important; }
-@keyframes entrance { from { opacity: 0; transform: translateY(14px) scale(1.015); } to { opacity: 1; transform: none; } }
-@keyframes bloom { 0% { opacity: 0; transform: translateY(4px) scale(.15) rotate(-5deg); } 80% { opacity: 1; transform: translateY(0) scale(1.05) rotate(1deg); } 100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
-@keyframes growth { from { opacity: .4; transform: scaleY(.75) rotate(-2deg); } to { opacity: 1; transform: scaleY(1) rotate(0); } }
-@keyframes flowerBreeze { from { transform: translateX(calc(-1px * var(--movement))) rotate(calc(-.7deg * var(--movement))); } to { transform: translateX(calc(1px * var(--movement))) rotate(calc(.7deg * var(--movement))); } }
-@keyframes leafBreeze { from { transform: translateX(calc(-2px * var(--movement))) rotate(calc(-1.2deg * var(--movement))); } to { transform: translateX(calc(2px * var(--movement))) rotate(calc(1.2deg * var(--movement))); } }
-@keyframes treeBreeze { from { transform: translateX(calc(-3px * var(--movement))) rotate(calc(-1deg * var(--movement))); } to { transform: translateX(calc(3px * var(--movement))) rotate(calc(1deg * var(--movement))); } }
-/* Seven seconds of travel followed by twenty seconds with no visible petal. */
-@keyframes petal { 0% { opacity: 0; transform: translate(0,0) rotate(-4deg); } 4% { opacity: .5; } 12% { opacity: .6; transform: translate(calc(14px * var(--movement)), calc(18px * var(--movement))) rotate(9deg); } 22% { opacity: .35; transform: translate(calc(19px * var(--movement)), calc(34px * var(--movement))) rotate(19deg); } 26%,100% { opacity: 0; transform: translate(calc(16px * var(--movement)), calc(44px * var(--movement))) rotate(25deg); } }
-@media (hover: hover) and (pointer: fine) and (min-width: 768px) { .frame[data-hover=true] .hover { transform: scale(1.006); } .frame[data-hover=true] .flowerHover { transform: scale(1.015); } }
-@media (max-width: 1050px) { .frame { --movement: .6; } .flower:nth-of-type(n+10), .petal[data-petal=yellow] { display: none; } }
-@media (max-width: 767px) { .frame { --movement: .3; } .flower:nth-of-type(n+8), .plant:nth-of-type(3), .canopy, .petal[data-petal=white] { display: none; } }
-@media (prefers-reduced-motion: reduce) { .frame .entrance { opacity: 1; transform: none; animation: none; } .garden { display: none; } .frame .hover { transform: none; transition: none; } }
+﻿.frame { overflow: hidden; isolation: isolate; border-radius: inherit; background: white; --movement: 1; --limit: 5px; --speed-offset: 0s; }
+.stage { position: absolute; top: 50%; left: 50%; width: calc(100% - 32px); aspect-ratio: 1672 / 941; transform: translate(-50%, -50%); overflow: hidden; }
+.garden, .region, .motion, .detail, .detailMotion { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.garden { z-index: 1; overflow: hidden; }
+.region { opacity: 1; mask-size: 100% 100%; mask-position: center; mask-repeat: no-repeat; transform: none;
+  --x-left: clamp(calc(-1 * var(--limit)), calc(var(--left) * var(--movement)), var(--limit));
+  --x-right: clamp(calc(-1 * var(--limit)), calc(var(--right) * var(--movement)), var(--limit));
+  --r-left: clamp(-3deg, calc(var(--tilt-left) * var(--movement)), 3deg);
+  --r-right: clamp(-3deg, calc(var(--tilt-right) * var(--movement)), 3deg);
+  --y: calc(var(--rise) * var(--movement));
+}
+.frame:not(.active) .garden { display: none; }
+.active .region .motion { animation: flowerBreeze calc(var(--duration) + var(--speed-offset)) ease-in-out var(--delay) infinite both; }
+.active .region[data-kind='long-leaf'] .motion { animation-name: leafBreeze; }
+.active .region[data-kind='tree'] .motion, .active .region[data-kind='background'] .motion { animation-name: canopyBreeze; }
+.frame[data-running=false] .motion, .frame[data-running=false] .detailMotion, .frame[data-running=false] .garden { animation-play-state: paused !important; }
+.frame[data-running=true] .motion { will-change: transform; }
+@keyframes flowerBreeze {
+  0%,100% { transform: translate3d(0,0,0) rotate(0deg); }
+  12%,82% { transform: translate3d(var(--x-left),0,0) rotate(var(--r-left)); }
+  25%,60% { transform: translate3d(calc(var(--x-right) * .55),calc(var(--y) * .65),0) rotate(calc(var(--r-right) * .6)); }
+  45% { transform: translate3d(var(--x-right),var(--y),0) rotate(var(--r-right)); }
+}
+@keyframes leafBreeze {
+  0%,100% { transform: translate3d(0,0,0) rotate(0deg); }
+  10%,85% { transform: translate3d(var(--x-left),0,0) rotate(var(--r-left)); }
+  38%,53% { transform: translate3d(var(--x-right),var(--y),0) rotate(var(--r-right)); }
+  68% { transform: translate3d(calc(var(--x-right) * .4),0,0) rotate(calc(var(--r-right) * .5)); }
+}
+@keyframes canopyBreeze {
+  0%,100% { transform: translate3d(0,0,0) rotate(0deg); }
+  15%,86% { transform: translate3d(var(--x-left),0,0) rotate(var(--r-left)); }
+  44% { transform: translate3d(var(--x-right),var(--y),0) rotate(var(--r-right)); }
+  61% { transform: translate3d(calc(var(--x-right) * .75),calc(var(--y) * .5),0) rotate(calc(var(--r-right) * .75)); }
+}
+
+.motion { transform-origin: var(--origin); }
+.active .garden { animation: arrive 600ms ease-out both; }
+.detail { mask-size: 100% 100%; mask-repeat: no-repeat; mask-position: center; }
+.active .detailMotion { animation: breathe 4.6s ease-in-out infinite; }
+.active [data-detail=vest] .detailMotion { animation: vest 3.2s ease-in-out -.6s infinite; }
+.active [data-detail=blink] .detailMotion { animation: blink 6.7s linear infinite; }
+.active [data-detail=shadow] .detailMotion { animation: shadow 4.4s ease-in-out infinite; }
+.active [data-detail=brass] .detailMotion { animation: brass 1.8s ease-in-out .6s both; }
+[data-detail=brass] { mix-blend-mode: screen; }
+@keyframes arrive { from { opacity: 0; } to { opacity: 1; } }
+@keyframes breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-.45px); } }
+@keyframes vest { 0%,100% { transform: translateX(0); } 35% { transform: translateX(.65px); } 75% { transform: translateX(-.45px); } }
+/* Sample the immediately adjacent upper eyelid from the original image, inside
+   the eye aperture only: glasses, brows and the rest of the face stay fixed. */
+@keyframes blink { 0%,88%,92%,100% { opacity: 0; transform: translateY(0); } 89.5%,90.5% { opacity: 1; transform: translateY(.32%); } }
+@keyframes shadow { 0%,100% { opacity: 0; transform: translateX(0); } 50% { opacity: .12; transform: translateX(1px); } }
+@keyframes brass { 0%,100% { opacity: 0; } 45% { opacity: .16; } }
+@media (max-width: 1050px) { .frame { --movement: .8; --limit: 4px; } }
+@media (max-width: 767px) { .frame { --movement: .6; --limit: 3px; } }
+@media (prefers-reduced-motion: reduce) {
+ .frame .garden { display: none; animation: none; }
+ .frame .motion, .frame .detailMotion { animation: none; transform: none; will-change: auto; }
+}
